@@ -1,0 +1,31 @@
+[project]
+name = "inquiry-triage"
+version = "0.1.0"
+description = "顧客問い合わせをマルチエージェントで仕分け・下書きし、人が承認して送るプロトタイプ"
+readme = "README.md"
+authors = [
+    { name = "Nankk Home", email = "babylon.stage916@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+inquiry-triage = "inquiry_triage:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

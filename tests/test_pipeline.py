@@ -56,8 +56,10 @@ def test_review_flag_becomes_warning_not_rewrite(run):
 
 
 def test_urgent_first(run):
-    items, store = run
-    assert store.read_queue()[0]["inquiry_id"] == "INQ-002"
+    _, store = run
+    urgencies = [i["urgency"] for i in store.read_queue()]
+    assert "high" in urgencies
+    assert urgencies == sorted(urgencies, key=lambda u: {"high": 0, "normal": 1, "low": 2}[u])
 
 
 def test_retrieve_keyword_then_fallback():

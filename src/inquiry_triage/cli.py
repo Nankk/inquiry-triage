@@ -47,6 +47,9 @@ def cmd_run(a: argparse.Namespace) -> int:
     items = orch.run(inquiries)
     print(f"run {store.run_id}: {len(items)} 件をキューに載せました → {store.dir}")
     _print_queue([i.to_dict() for i in items])
+    for st in store.read_steps():
+        if st["status"] == "failed":
+            print(f"失敗: {st['inquiry_id']} {st['step']} ({st['agent']}): {st['reason']}", file=sys.stderr)
     return 0
 
 

@@ -7,7 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-from inquiry_triage.llm import ReplayClient
+from inquiry_triage.llm import LiveClient, LLMClient, LLMError, RecordingClient, ReplayClient
 from inquiry_triage.models import Inquiry
 from inquiry_triage.orchestrator import Orchestrator
 from inquiry_triage.retrieval import load_kb
@@ -16,11 +16,29 @@ from inquiry_triage.store import RunStore
 FIX = Path("fixtures")
 
 
+def _client(a: argparse.Namespace) -> LLMClient:
+    """既定はリプレイ。--live で実呼び出し、--record は実呼び出しの結果を --replay の fixture に保存する。"""
+    if not (a.live or a.record):
+        return ReplayClient(Path(a.replay))
+    live = LiveClient.from_env()
+    return RecordingClient(live, Path(a.replay)) if a.record else live
+
+
 def cmd_run(a: argparse.Namespace) -> int:
     inquiries = [Inquiry.from_dict(d) for d in json.loads(Path(a.inbox).read_text(encoding="utf-8"))]
+    if a.only:
+        inquiries = [i for i in inquiries if i.id in a.only]
+        if not inquiries:
+            print(f"--only に一致する問い合わせがありません: {a.only}", file=sys.stderr)
+            return 2
+    try:
+        client = _client(a)
+    except LLMError as e:
+        print(str(e), file=sys.stderr)
+        return 2
     store = RunStore(Path(a.runs))
     orch = Orchestrator(
-        ReplayClient(Path(a.replay)),
+        client,
         load_kb(Path(a.kb)),
         Path(a.policy).read_text(encoding="utf-8"),
         store,
@@ -139,6 +157,10 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--policy", default=str(FIX / "policy.md"))
     r.add_argument("--replay", default=str(FIX / "replay"), help="LLM fixture のディレクトリ")
     r.add_argument("--workers", type=int, default=4)
+    r.add_argument("--only", nargs="+", metavar="ID", help="この問い合わせ ID だけ処理する")
+    m = r.add_mutually_exclusive_group()
+    m.add_argument("--live", action="store_true", help="LLM を実際に呼ぶ（環境変数 INQUIRY_TRIAGE_*）")
+    m.add_argument("--record", action="store_true", help="実際に呼び、結果を --replay の fixture に保存する")
     r.set_defaults(fn=cmd_run)
 
     s = sub.add_parser("show", help="キューを表示。--inquiry で 1 件の追跡ログ")

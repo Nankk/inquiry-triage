@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "顧客問い合わせをマルチエージェントで仕分け・下書きし、人が承認して送るプロトタイプ"
 readme = "README.md"
 authors = [
-    { name = "Nankk Home", email = "babylon.stage916@gmail.com" }
+    { name = "Nankk Home", email = "43244127+Nankk@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
 dependencies = []

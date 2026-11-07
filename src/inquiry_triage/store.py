@@ -39,6 +39,16 @@ class RunStore:
     def read_queue(self) -> list[dict[str, Any]]:
         return json.loads((self.dir / "queue.json").read_text(encoding="utf-8"))
 
+    def read_decisions(self) -> list[dict[str, Any]]:
+        p = self.dir / "decisions.jsonl"
+        if not p.exists():
+            return []
+        return [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line]
+
+    def statuses(self) -> dict[str, str]:
+        """問い合わせ ID → 最新の判断。queue.json は書き換えず、状態は decisions.jsonl から導く。"""
+        return {d["inquiry_id"]: d["action"] for d in self.read_decisions()}
+
     def read_steps(self) -> list[dict[str, Any]]:
         p = self.dir / "steps.jsonl"
         if not p.exists():

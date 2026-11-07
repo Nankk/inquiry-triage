@@ -164,6 +164,7 @@ class Orchestrator:
     ) -> QueueItem:
         item = QueueItem(
             inquiry_id=inq.id,
+            customer=inq.customer,
             subject=inq.subject,
             urgency=routing.urgency if routing else "high",  # 分類できないものは先頭に出す
             category=routing.category if routing else "unknown",

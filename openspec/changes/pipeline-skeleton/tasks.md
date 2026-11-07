@@ -12,7 +12,7 @@
 
 ## 2. 動くところまで（11/7）
 
-- [ ] 2.1 CLI `review`（採用・却下・修正、decisions.jsonl、outbox 出力）を実装する
+- [x] 2.1 CLI `review`（採用・却下・修正、decisions.jsonl、outbox 出力）を実装する
 - [ ] 2.2 テスト: 表引き、検証、オーケストレータの失敗隔離、承認の記録を ReplayClient で網羅する
 - [ ] 2.3 `LiveClient`（OpenAI 互換エンドポイント）と `RecordingClient` を実装し、1 件だけ実呼び出しで fixture を作り直す
 - [ ] 2.4 シャドーモード（新しい専門エージェントの出力を記録のみ）を設定で切り替えられるようにする

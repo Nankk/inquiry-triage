@@ -126,6 +126,7 @@ class QueueItem:
     """承認キューの 1 項目。人が見る単位。"""
 
     inquiry_id: str
+    customer: str
     subject: str
     urgency: str
     category: str

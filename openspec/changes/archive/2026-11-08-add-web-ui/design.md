@@ -31,8 +31,12 @@ CLI（run / show / review / shadow-report）は揃っている。画面は「同
 | GET | /api/runs/{id}/queue | queue.json に状態（decisions の最新）と影の要約を合成した一覧 |
 | GET | /api/runs/{id}/inquiries/{iid} | その問い合わせの steps 全行と queue 項目、decisions |
 | GET | /api/runs/{id}/shadow-report | shadow-report と同じ行の JSON |
+| GET | /api/config | 既知のエージェント、既定と現在の対応表（routing.json の上書き込み）、影の設定、書き出し先 |
 | POST | /api/runs/{id}/decisions | {inquiry_id, action, reason, body?} → 追記して結果を返す |
 | POST | /api/routing | {category, agent} → routing.json と shadow.json を書き出す |
+
+POST は Content-Type: application/json を要求し、Origin があれば Host と一致することを確かめる（ブラウザ経由の CSRF 対策。認証は Non-goal だが、他サイトからの書き込みは止める）。想定外の例外は 500 の JSON で返す。
+
 | GET | /（その他） | web/dist の静的ファイル（無ければ 404 とビルド手順の案内） |
 
 ## Risks / Trade-offs
@@ -43,8 +47,8 @@ CLI（run / show / review / shadow-report）は揃っている。画面は「同
 
 ## Review（2026-11-09、実装前）
 
-- 本人が承認。W1（標準ライブラリの http.server）は「大きな売りではないが筋が通っている」として維持、W4（昇格は routing.json の書き出し）も承認。
-- 画面の参考に本人が Gemini で作ったモックアップ画像を受け取った（リポジトリ外に保存）。採るのはレイアウトだけ: ダークテーマ、左に一覧・右に詳細のマスター・ディテール、警告をカードで、影との左右比較をトグルで。文言は日本語で CLI と揃え、モックアップの英語ナビ（Inbox / Analytics / AI Specialists）は採らない。
+- 作者が承認。W1（標準ライブラリの http.server）は「大きな売りではないが筋が通っている」として維持、W4（昇格は routing.json の書き出し）も承認。
+- 画面の参考に作者が画像生成 AI で作ったモックアップを使った（リポジトリ外に保存）。採るのはレイアウトだけ: ダークテーマ、左に一覧・右に詳細のマスター・ディテール、警告をカードで、影との左右比較をトグルで。文言は日本語で CLI と揃え、モックアップの英語ナビ（Inbox / Analytics / AI Specialists）は採らない。
 - 実装上の追加決定: 昇格の書き出し先は fixtures/ ではなくリポジトリ直下の routing.json / shadow.json（`serve --routing-config` / `--shadow-config` で指定、gitignore）。fixtures/shadow.json はテストとデモが依存するので書き換えない。`run --routing-config` は本番と影が同じ名前になる設定を拒否する。静的配信は web/dist 配下に解決したパスだけ返す。画面は hash で切り替え（#/queue、#/inquiry/ID、#/shadow）。
 
 ## Open Questions

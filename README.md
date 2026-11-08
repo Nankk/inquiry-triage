@@ -2,7 +2,7 @@
 
 顧客問い合わせを複数の LLM エージェントで仕分けて返信案を作り、人が承認してから送るプロトタイプ。CLI と Web 画面。
 
-LLM を組み込むシステムの基本的な型（一方向の流れ、人の承認ゲート、決定論的な後処理と検証、全段の記録）を、架空の題材で小さく組んだもの。見せたいのは返信の出来ではなく **構成**（[docs/architecture.md](docs/architecture.md)）で、LLM に任せる部分を小さく、周りの決定論的な仕組みを大きくしてある。仕様は [openspec/](openspec/) に置き、実装は Claude Code に委任して監督した。
+LLM を組み込むシステムの基本的な型（一方向の流れ、人の承認ゲート、決定論的な後処理と検証、全段の記録）を、架空の題材で小さく組んだ個人プロジェクト。返信文の出来ではなく **構成**（[docs/architecture.md](docs/architecture.md)）に重きを置き、LLM に任せる部分を小さく、周りの決定論的な仕組みを大きくしてある。仕様は [openspec/](openspec/) に change 単位で置き、実装は Claude Code に委任して作者がレビューした。
 
 ![承認キュー](docs/img/queue.png)
 
@@ -98,7 +98,7 @@ uv run inquiry-triage run --live --only INQ-001      # 1 件だけ実呼び出�
 uv run inquiry-triage run --record --only INQ-001    # 結果を fixtures/replay に保存。次回からリプレイ
 ```
 
-fixture のキーはプロンプトのハッシュではなく業務キー（`<agent>/<問い合わせ ID>.json`）なので、人が読み書きできる。INQ-001 の 3 段は実モデルの記録に差し替えてあり、実モデルが書いた「取消処理を行います」をレビューが規程違反として flag している。
+fixture のファイル名はプロンプトのハッシュではなく「エージェント名と問い合わせ ID」（`<agent>/<問い合わせ ID>.json`）なので、人が読んで直せる。INQ-001 の 3 段は実モデルの記録に差し替えてあり、実モデルが書いた「取消処理を行います」をレビューが規程違反として flag している。
 
 ### 開発
 
@@ -125,7 +125,8 @@ src/inquiry_triage/
   cli.py           run / show / review / shadow-report / serve
 web/               Vite + React + TypeScript。画面 3 枚
 fixtures/          架空の問い合わせ 5 件、FAQ 6 本、規程、リプレイ用 LLM 出力、影の設定例
-openspec/          仕様。change ごとに proposal / design / specs / tasks
+openspec/          仕様。specs/ が現在の正典、changes/archive/ に経緯（proposal / design / tasks）
+.claude/           OpenSpec のスラッシュコマンド（ツール設定。OpenSpec 付属のものをそのまま置いている）
 ```
 
 仕様は change 単位で切ってある（`pipeline-skeleton` → `add-shadow-mode` → `add-web-ui`）。各 design.md に決定と却下した代替案、レビューで変えた点を残している。

@@ -10,3 +10,7 @@ wheels/
 .venv
 runs/
 outbox/
+
+# serve が書き出す対応表（昇格）と影の設定
+/routing.json
+/shadow.json

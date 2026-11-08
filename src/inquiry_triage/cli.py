@@ -13,6 +13,7 @@ from inquiry_triage.llm import LiveClient, LLMClient, LLMError, RecordingClient,
 from inquiry_triage.models import Inquiry
 from inquiry_triage.orchestrator import Orchestrator
 from inquiry_triage.retrieval import load_kb
+from inquiry_triage.server import Settings, serve
 from inquiry_triage.store import RunStore
 from inquiry_triage.views import inquiry_view, queue_view, shadow_report
 
@@ -167,6 +168,20 @@ def cmd_shadow_report(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_serve(a: argparse.Namespace) -> int:
+    """HTTP API と画面。runs/ を読み、判断は decisions.jsonl へ、昇格は routing.json / shadow.json へ書く。"""
+    settings = Settings(
+        runs=Path(a.runs),
+        outbox=Path(a.outbox),
+        routing_config=Path(a.routing_config),
+        shadow_config=Path(a.shadow_config),
+    )
+    if a.web_dist:
+        settings.web_dist = Path(a.web_dist)
+    serve(settings, a.host, a.port)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="inquiry-triage")
     p.add_argument("--runs", default="runs")
@@ -213,6 +228,19 @@ def main(argv: list[str] | None = None) -> int:
     sr = sub.add_parser("shadow-report", help="本番と影のレビュー判定・警告数を並べる")
     sr.add_argument("run_id", nargs="?")
     sr.set_defaults(fn=cmd_shadow_report)
+
+    sv = sub.add_parser("serve", help="HTTP API と画面（http://127.0.0.1:8765）")
+    sv.add_argument("--host", default="127.0.0.1")
+    sv.add_argument("--port", type=int, default=8765)
+    sv.add_argument("--outbox", default="outbox")
+    sv.add_argument(
+        "--routing-config", default="routing.json", help="昇格の書き出し先（run --routing-config に渡す）"
+    )
+    sv.add_argument(
+        "--shadow-config", default="shadow.json", help="影の設定の書き出し先（昇格したカテゴリを外す）"
+    )
+    sv.add_argument("--web-dist", help="フロントエンドのビルド成果物（既定 web/dist）")
+    sv.set_defaults(fn=cmd_serve)
 
     a = p.parse_args(argv)
     return a.fn(a)

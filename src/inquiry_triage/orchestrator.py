@@ -25,14 +25,17 @@ class Orchestrator:
     policy: str
     store: RunStore
     workers: int = 4
+    shadow: dict[str, str] | None = None  # カテゴリ → 影のエージェント名（記録のみ、キューに出ない）
     router: Router = field(init=False)
     reviewer: Reviewer = field(init=False)
     specialists: dict[str, Specialist] = field(init=False)
+    shadows: dict[str, Specialist] = field(init=False)
 
     def __post_init__(self) -> None:
         self.router = Router(self.llm)
         self.reviewer = Reviewer(self.llm)
         self.specialists = build_specialists(self.llm)
+        self.shadows = build_specialists(self.llm, self.shadow) if self.shadow else {}
 
     # --- 記録付きの 1 段 -------------------------------------------------
     def _step(
@@ -109,17 +112,35 @@ class Orchestrator:
         articles = articles or []
         candidate_ids = [a.id for a in articles]
 
-        draft, err = self._step(
-            "draft",
-            specialist.name,
-            inq.id,
-            {"inquiry_id": inq.id, "articles": candidate_ids},
-            lambda: specialist.run({"inquiry": inq, "articles": articles}),
-            lambda d: d.__dict__,
-        )
+        draft_input = {"inquiry_id": inq.id, "articles": candidate_ids}
+        shadow_agent = self.shadows.get(routing.category)
+        # 本番の返信案と影の経路を並列に。影は記録だけで、本番の結果に触らない。
+        with ThreadPoolExecutor(max_workers=2) as ex:
+            f_draft = ex.submit(
+                self._step,
+                "draft",
+                specialist.name,
+                inq.id,
+                draft_input,
+                lambda: specialist.run({"inquiry": inq, "articles": articles}),
+                lambda d: d.__dict__,
+            )
+            f_shadow = (
+                ex.submit(self._shadow, shadow_agent, inq, articles, candidate_ids, draft_input)
+                if shadow_agent
+                else None
+            )
+        draft, err = f_draft.result()
+        shadow = f_shadow.result() if f_shadow else None
         if draft is None:
             return self._enqueue(
-                inq, routing, specialist.name, candidate_ids, None, [f"返信案の生成失敗: {err}", HUMAN_DIRECT]
+                inq,
+                routing,
+                specialist.name,
+                candidate_ids,
+                None,
+                [f"返信案の生成失敗: {err}", HUMAN_DIRECT],
+                shadow,
             )
         assert isinstance(draft, Draft)
 
@@ -151,7 +172,56 @@ class Orchestrator:
         elif isinstance(review, Review) and review.verdict == "flag":
             warnings.extend(f"レビュー指摘: {r}" for r in review.reasons)
 
-        return self._enqueue(inq, routing, specialist.name, candidate_ids, draft, warnings)
+        return self._enqueue(inq, routing, specialist.name, candidate_ids, draft, warnings, shadow)
+
+    # --- 影の経路 ---------------------------------------------------------
+    def _shadow(
+        self,
+        agent: Specialist,
+        inq: Inquiry,
+        articles: list[Article],
+        candidate_ids: list[str],
+        draft_input: dict[str, Any],
+    ) -> dict[str, Any]:
+        """影の担当に同じ入力で返信案を書かせ、同じ 2 系統で検査する。結果は記録と要約だけ。"""
+        summary: dict[str, Any] = {"agent": agent.name, "verdict": None, "warnings": None, "failed": None}
+        draft, err = self._step(
+            "shadow_draft",
+            agent.name,
+            inq.id,
+            draft_input,
+            lambda: agent.run({"inquiry": inq, "articles": articles}),
+            lambda d: d.__dict__,
+        )
+        if draft is None:
+            summary["failed"] = err
+            return summary
+        assert isinstance(draft, Draft)
+        with ThreadPoolExecutor(max_workers=2) as ex:
+            f_review = ex.submit(
+                self._step,
+                "shadow_review",
+                self.reviewer.name,
+                inq.id,
+                {"inquiry_id": inq.id, "key": f"{inq.id}.shadow"},
+                lambda: self.reviewer.run(
+                    {"inquiry": inq, "draft": draft, "policy": self.policy, "key": f"{inq.id}.shadow"}
+                ),
+                lambda r: r.__dict__,
+            )
+            f_verify = ex.submit(
+                self._step,
+                "shadow_verify",
+                "verifier",
+                inq.id,
+                {"candidates": candidate_ids},
+                lambda: verify(draft, candidate_ids),
+            )
+        review, rerr = f_review.result()
+        checks, _ = f_verify.result()
+        summary["warnings"] = len(checks or [])
+        summary["verdict"] = review.verdict if isinstance(review, Review) else f"失敗: {rerr}"
+        return summary
 
     def _enqueue(
         self,
@@ -161,6 +231,7 @@ class Orchestrator:
         candidate_ids: list[str],
         draft: Draft | None,
         warnings: list[str],
+        shadow: dict[str, Any] | None = None,
     ) -> QueueItem:
         item = QueueItem(
             inquiry_id=inq.id,
@@ -172,6 +243,7 @@ class Orchestrator:
             candidate_ids=candidate_ids,
             draft=draft.__dict__ if draft else None,
             warnings=warnings,
+            shadow=shadow,
         )
         self.store.append_step(
             {

@@ -135,6 +135,7 @@ class QueueItem:
     draft: dict[str, Any] | None
     warnings: list[str]
     status: str = "pending"
+    shadow: dict[str, Any] | None = None  # 影の要約（agent, verdict, warnings, failed）。本文は steps.jsonl
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

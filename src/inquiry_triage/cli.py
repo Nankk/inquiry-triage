@@ -7,6 +7,7 @@ import json
 import sys
 from pathlib import Path
 
+from inquiry_triage.agents import load_shadow_config
 from inquiry_triage.llm import LiveClient, LLMClient, LLMError, RecordingClient, ReplayClient
 from inquiry_triage.models import Inquiry
 from inquiry_triage.orchestrator import Orchestrator
@@ -33,7 +34,8 @@ def cmd_run(a: argparse.Namespace) -> int:
             return 2
     try:
         client = _client(a)
-    except LLMError as e:
+        shadow = load_shadow_config(Path(a.shadow_config)) if a.shadow_config else None
+    except (LLMError, ValueError) as e:  # 設定の不備は実行を作る前に止める
         print(str(e), file=sys.stderr)
         return 2
     store = RunStore(Path(a.runs))
@@ -43,6 +45,7 @@ def cmd_run(a: argparse.Namespace) -> int:
         Path(a.policy).read_text(encoding="utf-8"),
         store,
         workers=a.workers,
+        shadow=shadow,
     )
     items = orch.run(inquiries)
     print(f"run {store.run_id}: {len(items)} 件をキューに載せました → {store.dir}")
@@ -149,6 +152,50 @@ def cmd_review(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_shadow_report(a: argparse.Namespace) -> int:
+    """影が走った問い合わせごとに、本番と影のレビュー判定・警告数を並べる。昇格判断の材料。"""
+    run_id = a.run_id or RunStore.latest(Path(a.runs))
+    if not run_id:
+        print("実行がありません", file=sys.stderr)
+        return 1
+    store = RunStore(Path(a.runs), run_id)
+    reviews = {s["inquiry_id"]: s for s in store.read_steps() if s["step"] == "review"}
+    rows = [i for i in store.read_queue() if i.get("shadow")]
+    if not rows:
+        print(f"run {run_id}: 影は走っていません")
+        return 0
+
+    def verdict(step: dict | None) -> str:
+        if step is None:
+            return "-"
+        return step["output"]["verdict"] if step["status"] == "ok" else "失敗"
+
+    print(f"run {run_id}")
+    print(f"{'ID':8} {'本番':22} {'判定':6} {'警告':4}  {'影':22} {'判定':6} {'警告':4}")
+    tot = {"main_pass": 0, "main_warn": 0, "shadow_pass": 0, "shadow_warn": 0}
+    for i in rows:
+        mv = verdict(reviews.get(i["inquiry_id"]))
+        sh = i["shadow"]
+        if sh["failed"]:
+            sv, sw = "失敗", "-"
+            tail = f"  ← {sh['failed']}"
+        else:
+            sv, sw, tail = sh["verdict"], str(sh["warnings"]), ""
+            tot["shadow_pass"] += sv == "pass"
+            tot["shadow_warn"] += sh["warnings"]
+        tot["main_pass"] += mv == "pass"
+        tot["main_warn"] += len(i["warnings"])
+        print(
+            f"{i['inquiry_id']:8} {i['specialist']:22} {mv:6} {len(i['warnings']):4}  "
+            f"{sh['agent']:22} {sv:6} {sw:>4}{tail}"
+        )
+    print(
+        f"合計 {len(rows)} 件: 本番 pass {tot['main_pass']} / 警告 {tot['main_warn']}、"
+        f"影 pass {tot['shadow_pass']} / 警告 {tot['shadow_warn']}"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="inquiry-triage")
     p.add_argument("--runs", default="runs")
@@ -161,6 +208,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--replay", default=str(FIX / "replay"), help="LLM fixture のディレクトリ")
     r.add_argument("--workers", type=int, default=4)
     r.add_argument("--only", nargs="+", metavar="ID", help="この問い合わせ ID だけ処理する")
+    r.add_argument(
+        "--shadow-config", metavar="FILE", help="影の設定 {カテゴリ: エージェント名}。影は記録のみ"
+    )
     m = r.add_mutually_exclusive_group()
     m.add_argument("--live", action="store_true", help="LLM を実際に呼ぶ（環境変数 INQUIRY_TRIAGE_*）")
     m.add_argument("--record", action="store_true", help="実際に呼び、結果を --replay の fixture に保存する")
@@ -183,6 +233,10 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--reason", default="", help="判断の理由")
     v.add_argument("--outbox", default="outbox", help="採用した返信の出力先")
     v.set_defaults(fn=cmd_review)
+
+    sr = sub.add_parser("shadow-report", help="本番と影のレビュー判定・警告数を並べる")
+    sr.add_argument("run_id", nargs="?")
+    sr.set_defaults(fn=cmd_shadow_report)
 
     a = p.parse_args(argv)
     return a.fn(a)

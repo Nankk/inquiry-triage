@@ -35,13 +35,7 @@ class Orchestrator:
     def __post_init__(self) -> None:
         self.router = Router(self.llm)
         self.reviewer = Reviewer(self.llm)
-        table = routing_table(self.routing)
-        for cat, name in (self.shadow or {}).items():
-            if table.get(cat) == name:
-                raise ValueError(
-                    f"カテゴリ {cat} の本番と影が同じエージェント {name!r} です。比較になりません"
-                )
-        self.specialists = build_specialists(self.llm, table)
+        self.specialists = build_specialists(self.llm, routing_table(self.routing, self.shadow))
         self.shadows = build_specialists(self.llm, self.shadow) if self.shadow else {}
 
     # --- 記録付きの 1 段 -------------------------------------------------

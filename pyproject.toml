@@ -5,7 +5,7 @@ description = "顧客問い合わせをマルチエージェントで仕分け�
 readme = "README.md"
 license = "MIT"
 authors = [
-    { name = "Nankk Home", email = "43244127+Nankk@users.noreply.github.com" }
+    { name = "Yusuke Shimotoku", email = "43244127+Nankk@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
 dependencies = []

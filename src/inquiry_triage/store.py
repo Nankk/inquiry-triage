@@ -14,24 +14,40 @@ def new_run_id() -> str:
 
 
 class RunStore:
+    """runs/<run_id>/ の読み書き。ディレクトリは最初の書き込みで作る（読むだけなら副作用なし）。"""
+
     def __init__(self, runs_root: Path, run_id: str | None = None) -> None:
         self.run_id = run_id or new_run_id()
         self.dir = Path(runs_root) / self.run_id
-        self.dir.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
+
+    def exists(self) -> bool:
+        return (self.dir / "queue.json").is_file()
+
+    @classmethod
+    def open(cls, runs_root: Path, run_id: str | None) -> RunStore | None:
+        """既存の実行を開く。run_id が None なら最新。無ければ None。"""
+        run_id = run_id or cls.latest(runs_root)
+        if not run_id:
+            return None
+        store = cls(runs_root, run_id)
+        return store if store.exists() else None
 
     def append_step(self, record: dict[str, Any]) -> None:
         record = {"ts": datetime.now(UTC).isoformat(timespec="milliseconds"), **record}
         line = json.dumps(record, ensure_ascii=False)
+        self.dir.mkdir(parents=True, exist_ok=True)
         with self._lock, (self.dir / "steps.jsonl").open("a", encoding="utf-8") as f:
             f.write(line + "\n")
 
     def append_decision(self, record: dict[str, Any]) -> None:
         record = {"ts": datetime.now(UTC).isoformat(timespec="milliseconds"), **record}
+        self.dir.mkdir(parents=True, exist_ok=True)
         with self._lock, (self.dir / "decisions.jsonl").open("a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     def write_queue(self, items: list[dict[str, Any]]) -> None:
+        self.dir.mkdir(parents=True, exist_ok=True)
         (self.dir / "queue.json").write_text(
             json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8"
         )
@@ -57,5 +73,8 @@ class RunStore:
 
     @staticmethod
     def latest(runs_root: Path) -> str | None:
-        runs = sorted(p.name for p in Path(runs_root).iterdir() if p.is_dir())
+        root = Path(runs_root)
+        if not root.is_dir():
+            return None
+        runs = sorted(p.name for p in root.iterdir() if (p / "queue.json").is_file())
         return runs[-1] if runs else None

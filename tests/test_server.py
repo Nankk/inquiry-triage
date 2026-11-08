@@ -57,6 +57,7 @@ def srv(tmp_path, monkeypatch):
         "store": RunStore(runs, run_id),
         "tmp": tmp_path,
         "settings": settings,
+        "port": httpd.server_port,
     }
     httpd.shutdown()
     httpd.server_close()
@@ -187,3 +188,34 @@ def test_static_serves_dist_and_blocks_traversal(srv):
     assert st == 200 and "<title>t</title>" in body  # hash ルーティングのため index にフォールバック
     st, body, _ = srv["call"]("GET", "/../secret.txt")
     assert "x" != body
+
+
+def test_write_api_requires_json_and_same_origin(srv):
+    """書き込みの入口: Content-Type、Origin、Content-Length の検証。拒否は記録に残らない。"""
+    import urllib.request
+
+    base_url = f"/api/runs/{srv['run_id']}/decisions"
+    payload = json.dumps({"inquiry_id": "INQ-001", "action": "rejected"}).encode()
+
+    def raw(headers, data=payload):
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{srv['port']}{base_url}", data=data, method="POST", headers=headers
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=5) as r:
+                return r.status
+        except urllib.error.HTTPError as e:
+            return e.code
+
+    assert raw({"Content-Type": "text/plain"}) == 415  # ブラウザの simple request は通さない
+    assert raw({"Content-Type": "application/json", "Origin": "http://evil.example"}) == 403
+    assert raw({"Content-Type": "application/json", "Origin": f"http://127.0.0.1:{srv['port']}"}) == 200
+    assert raw({"Content-Type": "application/json", "Content-Length": "abc"}) == 400
+    assert raw({"Content-Type": "application/json"}, b"[1, 2]") == 400
+    assert len(srv["store"].read_decisions()) == 1  # 通ったのは同一オリジンの 1 回だけ
+
+
+def test_broken_record_returns_500_json(srv):
+    (srv["store"].dir / "queue.json").write_text("{not json", encoding="utf-8")
+    st, body, ctype = srv["call"]("GET", f"/api/runs/{srv['run_id']}/queue")
+    assert st == 500 and "json" in ctype and "JSONDecodeError" in body["error"]

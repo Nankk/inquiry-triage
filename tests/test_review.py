@@ -98,3 +98,11 @@ def test_show_derives_status(env, capsys):
     line = next(ln for ln in capsys.readouterr().out.splitlines() if ln.startswith("INQ-002"))
     assert "rejected" in line
     assert json.loads((env["store"].dir / "queue.json").read_text(encoding="utf-8"))[0]["status"] == "pending"
+
+
+def test_show_on_missing_run_is_clean(tmp_path, capsys):
+    runs = tmp_path / "runs"
+    assert main(["--runs", str(runs), "show", "bogus"]) == 1
+    assert not (runs / "bogus").exists()  # 読むだけでディレクトリは作らない
+    assert main(["--runs", str(runs), "show"]) == 1  # runs/ 自体が無くてもトレースバックにならない
+    assert "実行がありません" in capsys.readouterr().err

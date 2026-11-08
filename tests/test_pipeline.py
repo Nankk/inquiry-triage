@@ -72,3 +72,31 @@ def test_verify_rules():
     d = Draft("3 営業日以内に必ず全額返金いたします {{x}}", ("KB-Z1",), (), "low")
     w = verify(d, ["KB-B01"])
     assert len(w) == 6
+
+
+def test_schema_error_is_isolated(tmp_path):
+    """spec inquiry-routing「構造化出力の検証失敗」: 分類が未知のカテゴリを返した 1 件だけ人に回り、他は続く。"""
+    import shutil
+
+    replay = tmp_path / "replay"
+    shutil.copytree(FIX / "replay", replay)
+    broken = json.loads((replay / "router" / "INQ-003.json").read_text(encoding="utf-8"))
+    broken["category"] = "shipping"
+    (replay / "router" / "INQ-003.json").write_text(json.dumps(broken, ensure_ascii=False), encoding="utf-8")
+    store = RunStore(tmp_path / "runs")
+    orch = Orchestrator(
+        ReplayClient(replay), load_kb(FIX / "kb.json"), (FIX / "policy.md").read_text(encoding="utf-8"), store
+    )
+    inquiries = [Inquiry.from_dict(d) for d in json.loads((FIX / "inbox.json").read_text(encoding="utf-8"))]
+    items = {i.inquiry_id: i for i in orch.run(inquiries)}
+    assert len(items) == 5
+    assert items["INQ-003"].specialist is None and HUMAN_DIRECT in items["INQ-003"].warnings
+    (route,) = [s for s in store.read_steps() if s["inquiry_id"] == "INQ-003" and s["step"] == "route"]
+    assert route["status"] == "failed" and "SchemaError" in route["reason"]
+    assert items["INQ-001"].draft is not None  # 他は普通に進む
+
+
+def test_facts_keep_json_values(run):
+    _, store = run
+    (route,) = [s for s in store.read_steps() if s["inquiry_id"] == "INQ-001" and s["step"] == "route"]
+    assert route["output"]["facts"]["billing_dates"] == ["10/5", "10/6"]  # 配列が文字列化されない

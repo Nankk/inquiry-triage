@@ -75,7 +75,7 @@ class Routing:
     category: str
     urgency: str
     summary: str
-    facts: dict[str, str] = field(default_factory=dict)
+    facts: dict[str, Any] = field(default_factory=dict)  # JSON の値をそのまま持つ（配列も可）
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> Routing:
@@ -86,7 +86,7 @@ class Routing:
             _enum(d, "category", CATEGORIES),
             _enum(d, "urgency", URGENCIES),
             _str(d, "summary"),
-            {str(k): str(v) for k, v in facts.items()},
+            {str(k): v for k, v in facts.items()},
         )
 
 

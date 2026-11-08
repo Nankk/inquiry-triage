@@ -5,6 +5,8 @@ GET  /api/runs/{id}/queue              キュー（状態を合成）
 GET  /api/runs/{id}/inquiries/{iid}    1 件の全段・項目・判断
 GET  /api/runs/{id}/shadow-report      本番と影の比較
 GET  /api/config                       現在の対応表（既定 + routing.json）と影の設定、既知のエージェント
+
+書き込み（POST）は Content-Type: application/json と、Origin があれば Host と同じことを要求する。
 POST /api/runs/{id}/decisions          {inquiry_id, action, reason, body?}
 POST /api/routing                      {category, agent} → routing.json に書き出し、shadow.json から外す
 GET  /...                              web/dist の静的ファイル
@@ -19,6 +21,7 @@ from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from inquiry_triage.agents import PERSONAS, SPECIALISTS, validate_table
 from inquiry_triage.approval import ApprovalError, decide
@@ -74,11 +77,10 @@ class Api:
         raise ApiError(404, f"not found: {method} {path}")
 
     def _store(self, run_id: str) -> RunStore:
-        if run_id == "latest":
-            run_id = RunStore.latest(self.s.runs) or ""
-        if not run_id or not (self.s.runs / run_id / "queue.json").exists():
+        store = RunStore.open(self.s.runs, None if run_id == "latest" else run_id)
+        if store is None:
             raise ApiError(404, f"run not found: {run_id!r}")
-        return RunStore(self.s.runs, run_id)
+        return store
 
     # --- GET -------------------------------------------------------------
     def runs(self, body=None) -> Any:
@@ -164,21 +166,35 @@ def make_handler(api: Api, web_dist: Path) -> type[BaseHTTPRequestHandler]:
             self.wfile.write(raw)
 
         def _api(self, method: str) -> None:
-            body = None
-            if method == "POST":
-                n = int(self.headers.get("Content-Length") or 0)
-                try:
-                    body = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}
-                except json.JSONDecodeError:
-                    self._json(400, {"error": "body is not JSON"})
-                    return
-                if not isinstance(body, dict):
-                    self._json(400, {"error": "body must be an object"})
-                    return
             try:
+                body = self._read_body() if method == "POST" else None
                 self._json(200, api.dispatch(method, self.path.split("?", 1)[0], body))
             except ApiError as e:
                 self._json(e.status, {"error": str(e)})
+            except Exception as e:  # noqa: BLE001 — 壊れた記録などで落ちても応答は返す
+                self._json(500, {"error": f"{type(e).__name__}: {e}"})
+
+        def _read_body(self) -> dict[str, Any]:
+            """書き込み API の入口。JSON 以外、他サイト起点、壊れた長さは受け付けない。"""
+            ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+            if ctype != "application/json":
+                raise ApiError(415, "Content-Type must be application/json")
+            origin = self.headers.get("Origin")
+            if origin and urlsplit(origin).netloc != (self.headers.get("Host") or ""):
+                raise ApiError(403, "cross-origin request is not allowed")  # ブラウザ経由の CSRF を止める
+            try:
+                n = int(self.headers.get("Content-Length") or 0)
+            except ValueError as e:
+                raise ApiError(400, "bad Content-Length") from e
+            if n > 1_000_000:
+                raise ApiError(413, "body too large")
+            try:
+                body = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}
+            except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                raise ApiError(400, "body is not JSON") from e
+            if not isinstance(body, dict):
+                raise ApiError(400, "body must be an object")
+            return body
 
         def _static(self) -> None:
             rel = self.path.split("?", 1)[0].lstrip("/") or "index.html"

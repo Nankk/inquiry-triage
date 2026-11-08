@@ -72,12 +72,18 @@ def _print_queue(items: list[dict]) -> None:
         )
 
 
+def _open(a: argparse.Namespace) -> RunStore | None:
+    store = RunStore.open(Path(a.runs), a.run_id)
+    if store is None:
+        print(f"実行がありません: {a.run_id or '(最新)'} in {a.runs}", file=sys.stderr)
+    return store
+
+
 def cmd_show(a: argparse.Namespace) -> int:
-    run_id = a.run_id or RunStore.latest(Path(a.runs))
-    if not run_id:
-        print("実行がありません", file=sys.stderr)
+    store = _open(a)
+    if store is None:
         return 1
-    store = RunStore(Path(a.runs), run_id)
+    run_id = store.run_id
     if a.inquiry:
         view = inquiry_view(store, a.inquiry)
         if view is None:
@@ -112,11 +118,9 @@ def _print_item(item: dict, status: str) -> None:
 def cmd_review(a: argparse.Namespace) -> int:
     """人の判断。--accept / --reject / --body FILE のどれかで 1 件を決め、decisions.jsonl に追記する。
     指定が無ければ未決の項目を返信案つきで一覧する。queue.json と steps.jsonl は書き換えない。"""
-    run_id = a.run_id or RunStore.latest(Path(a.runs))
-    if not run_id:
-        print("実行がありません", file=sys.stderr)
+    store = _open(a)
+    if store is None:
         return 1
-    store = RunStore(Path(a.runs), run_id)
 
     action = "accepted" if a.accept else "rejected" if a.reject else "edited" if a.body else None
     if action is None:
@@ -142,15 +146,14 @@ def cmd_review(a: argparse.Namespace) -> int:
 
 def cmd_shadow_report(a: argparse.Namespace) -> int:
     """影が走った問い合わせごとに、本番と影のレビュー判定・警告数を並べる。昇格判断の材料。"""
-    run_id = a.run_id or RunStore.latest(Path(a.runs))
-    if not run_id:
-        print("実行がありません", file=sys.stderr)
+    store = _open(a)
+    if store is None:
         return 1
-    rep = shadow_report(RunStore(Path(a.runs), run_id))
+    rep = shadow_report(store)
     if not rep["rows"]:
-        print(f"run {run_id}: 影は走っていません")
+        print(f"run {store.run_id}: 影は走っていません")
         return 0
-    print(f"run {run_id}")
+    print(f"run {store.run_id}")
     print(f"{'ID':8} {'本番':22} {'判定':6} {'警告':4}  {'影':22} {'判定':6} {'警告':4}")
     for r in rep["rows"]:
         m, sh = r["main"], r["shadow"]

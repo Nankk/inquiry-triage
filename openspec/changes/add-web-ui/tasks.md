@@ -16,6 +16,6 @@
 
 ## 3. 仕上げ
 
-- [ ] 3.1 CI に `npm ci && npm run build && npx vitest run` を足す
+- [x] 3.1 CI に `npm ci && npm run build && npx vitest run` を足す
 - [x] 3.2 Chrome ヘッドレスで画面 3 枚のキャプチャを `docs/img/` に保存し、README と architecture.md に貼る
-- [ ] 3.3 README を 10 秒 → 1 分 → 10 分の構成に書き直す（pipeline-skeleton 2.5 もここで閉じる）
+- [x] 3.3 README を 10 秒 → 1 分 → 10 分の構成に書き直す（pipeline-skeleton 2.5 もここで閉じる）

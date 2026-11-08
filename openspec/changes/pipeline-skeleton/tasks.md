@@ -17,4 +17,4 @@
 - [x] 2.3 `LiveClient`（OpenAI 互換エンドポイント）と `RecordingClient` を実装する（`run --live` / `--record` / `--only ID`）
 - [x] 2.3b 1 件だけ実呼び出しで fixture を作り直す（INQ-001、Gemma 4。INQ-004 のレビュー欠落はデモとテストが依存するので触らない）
 - [x] 2.4 シャドーモード → 別 change `add-shadow-mode` に切り出して実装（2026-11-08）
-- [ ] 2.5 README（10 秒 → 1 分 → 10 分）と 5 分で話す台本を書く
+- [x] 2.5 README（10 秒 → 1 分 → 10 分）を書く（台本はリポジトリ外で管理）

@@ -19,3 +19,14 @@ jobs:
       - run: uv run pytest -q
       - name: リプレイで一周（API キー無し）
         run: uv run inquiry-triage run --shadow-config fixtures/shadow.json && uv run inquiry-triage shadow-report
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - run: npm test
+        working-directory: web
+      - run: npm run build
+        working-directory: web

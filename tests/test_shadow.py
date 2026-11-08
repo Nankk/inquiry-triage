@@ -118,3 +118,31 @@ def test_show_inquiry_lists_both_paths(cwd, tmp_path, capsys):
     assert {"draft", "shadow_draft", "review", "shadow_review"} <= set(steps)
     assert steps["draft"]["output"]["body"] != steps["shadow_draft"]["output"]["body"]
     assert steps["review"]["output"]["verdict"] and steps["shadow_review"]["output"]["verdict"]
+
+
+def test_routing_config_promotes_shadow(cwd, tmp_path):
+    routing = tmp_path / "routing.json"
+    routing.write_text('{"billing": "billing_specialist_v2"}', encoding="utf-8")
+    store = _run(tmp_path / "r", "--routing-config", str(routing), "--only", "INQ-001")
+    (d,) = _steps(store, "INQ-001", "draft")
+    assert d["agent"] == "billing_specialist_v2"
+    assert _steps(store, "INQ-001", "shadow_draft") == []
+    assert _item(store, "INQ-001")["specialist"] == "billing_specialist_v2"
+
+
+def test_routing_equal_to_shadow_is_refused(cwd, tmp_path):
+    routing = tmp_path / "routing.json"
+    routing.write_text('{"billing": "billing_specialist_v2"}', encoding="utf-8")
+    rc = main(
+        [
+            "--runs",
+            str(tmp_path / "r"),
+            "run",
+            "--routing-config",
+            str(routing),
+            "--shadow-config",
+            str(FIX / "shadow.json"),
+        ]
+    )
+    assert rc == 2
+    assert not (tmp_path / "r").exists() or not any((tmp_path / "r").iterdir())

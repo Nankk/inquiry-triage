@@ -7,12 +7,14 @@ import json
 import sys
 from pathlib import Path
 
-from inquiry_triage.agents import load_shadow_config
+from inquiry_triage.agents import load_routing_config, load_shadow_config, routing_table
+from inquiry_triage.approval import ApprovalError, decide
 from inquiry_triage.llm import LiveClient, LLMClient, LLMError, RecordingClient, ReplayClient
 from inquiry_triage.models import Inquiry
 from inquiry_triage.orchestrator import Orchestrator
 from inquiry_triage.retrieval import load_kb
 from inquiry_triage.store import RunStore
+from inquiry_triage.views import inquiry_view, queue_view, shadow_report
 
 FIX = Path("fixtures")
 
@@ -35,6 +37,8 @@ def cmd_run(a: argparse.Namespace) -> int:
     try:
         client = _client(a)
         shadow = load_shadow_config(Path(a.shadow_config)) if a.shadow_config else None
+        routing = load_routing_config(Path(a.routing_config)) if a.routing_config else None
+        routing_table(routing, shadow)  # 本番と影が同じ名前なら、runs/ を作る前に止める
     except (LLMError, ValueError) as e:  # 設定の不備は実行を作る前に止める
         print(str(e), file=sys.stderr)
         return 2
@@ -46,6 +50,7 @@ def cmd_run(a: argparse.Namespace) -> int:
         store,
         workers=a.workers,
         shadow=shadow,
+        routing=routing,
     )
     items = orch.run(inquiries)
     print(f"run {store.run_id}: {len(items)} 件をキューに載せました → {store.dir}")
@@ -56,11 +61,10 @@ def cmd_run(a: argparse.Namespace) -> int:
     return 0
 
 
-def _print_queue(items: list[dict], statuses: dict[str, str] | None = None) -> None:
-    statuses = statuses or {}
+def _print_queue(items: list[dict]) -> None:
     print(f"{'ID':8} {'緊急度':6} {'カテゴリ':10} {'担当':22} {'警告':4} {'状態':9} 件名")
     for i in items:
-        st = statuses.get(i["inquiry_id"], i["status"])
+        st = i["status"]
         print(
             f"{i['inquiry_id']:8} {i['urgency']:6} {i['category']:10} "
             f"{(i['specialist'] or '-'):22} {len(i['warnings']):4} {st:9} {i['subject']}"
@@ -74,16 +78,17 @@ def cmd_show(a: argparse.Namespace) -> int:
         return 1
     store = RunStore(Path(a.runs), run_id)
     if a.inquiry:
-        for s in store.read_steps():
-            if s["inquiry_id"] == a.inquiry:
-                print(json.dumps(s, ensure_ascii=False))
-        for i in store.read_queue():
-            if i["inquiry_id"] == a.inquiry:
-                print("\n--- キュー項目 ---")
-                print(json.dumps(i, ensure_ascii=False, indent=2))
+        view = inquiry_view(store, a.inquiry)
+        if view is None:
+            print(f"{a.inquiry} はこの実行のキューにありません", file=sys.stderr)
+            return 2
+        for st in view["steps"]:
+            print(json.dumps(st, ensure_ascii=False))
+        print("\n--- キュー項目 ---")
+        print(json.dumps(view["item"], ensure_ascii=False, indent=2))
         return 0
     print(f"run {run_id}")
-    _print_queue(store.read_queue(), store.statuses())
+    _print_queue(queue_view(store))
     return 0
 
 
@@ -111,44 +116,26 @@ def cmd_review(a: argparse.Namespace) -> int:
         print("実行がありません", file=sys.stderr)
         return 1
     store = RunStore(Path(a.runs), run_id)
-    items = {i["inquiry_id"]: i for i in store.read_queue()}
-    statuses = store.statuses()
 
     action = "accepted" if a.accept else "rejected" if a.reject else "edited" if a.body else None
     if action is None:
-        for i in items.values():
-            if statuses.get(i["inquiry_id"], "pending") == "pending":
+        for i in queue_view(store):
+            if i["status"] == "pending":
                 _print_item(i, "pending")
                 print()
         return 0
     if not a.inquiry:
         print("--inquiry を指定してください", file=sys.stderr)
         return 2
-    item = items.get(a.inquiry)
-    if item is None:
-        print(f"{a.inquiry} はこの実行のキューにありません", file=sys.stderr)
-        return 2
-
+    body = None
     if action == "edited":
         body = sys.stdin.read() if a.body == "-" else Path(a.body).read_text(encoding="utf-8")
-    elif action == "accepted":
-        if not item["draft"]:
-            print(f"{a.inquiry} に返信案がありません。--body で本文を渡してください", file=sys.stderr)
-            return 2
-        body = item["draft"]["body"]
-    else:
-        body = None
-
-    store.append_decision({"inquiry_id": a.inquiry, "action": action, "reason": a.reason, "body": body})
-    if body is not None:
-        out = Path(a.outbox) / run_id / f"{a.inquiry}.txt"
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(
-            f"To: {item['customer']}\nSubject: Re: {item['subject']}\n\n{body.rstrip()}\n", encoding="utf-8"
-        )
-        print(f"{a.inquiry}: {action} → {out}")
-    else:
-        print(f"{a.inquiry}: {action}")
+    try:
+        result = decide(store, a.inquiry, action, a.reason, body, a.outbox)
+    except ApprovalError as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    print(f"{a.inquiry}: {action}" + (f" → {result['outbox']}" if result["outbox"] else ""))
     return 0
 
 
@@ -158,40 +145,24 @@ def cmd_shadow_report(a: argparse.Namespace) -> int:
     if not run_id:
         print("実行がありません", file=sys.stderr)
         return 1
-    store = RunStore(Path(a.runs), run_id)
-    reviews = {s["inquiry_id"]: s for s in store.read_steps() if s["step"] == "review"}
-    rows = [i for i in store.read_queue() if i.get("shadow")]
-    if not rows:
+    rep = shadow_report(RunStore(Path(a.runs), run_id))
+    if not rep["rows"]:
         print(f"run {run_id}: 影は走っていません")
         return 0
-
-    def verdict(step: dict | None) -> str:
-        if step is None:
-            return "-"
-        return step["output"]["verdict"] if step["status"] == "ok" else "失敗"
-
     print(f"run {run_id}")
     print(f"{'ID':8} {'本番':22} {'判定':6} {'警告':4}  {'影':22} {'判定':6} {'警告':4}")
-    tot = {"main_pass": 0, "main_warn": 0, "shadow_pass": 0, "shadow_warn": 0}
-    for i in rows:
-        mv = verdict(reviews.get(i["inquiry_id"]))
-        sh = i["shadow"]
-        if sh["failed"]:
-            sv, sw = "失敗", "-"
-            tail = f"  ← {sh['failed']}"
-        else:
-            sv, sw, tail = sh["verdict"], str(sh["warnings"]), ""
-            tot["shadow_pass"] += sv == "pass"
-            tot["shadow_warn"] += sh["warnings"]
-        tot["main_pass"] += mv == "pass"
-        tot["main_warn"] += len(i["warnings"])
+    for r in rep["rows"]:
+        m, sh = r["main"], r["shadow"]
+        sv = "失敗" if sh["failed"] else sh["verdict"]
+        sw = "-" if sh["failed"] else str(sh["warnings"])
+        tail = f"  ← {sh['failed']}" if sh["failed"] else ""
         print(
-            f"{i['inquiry_id']:8} {i['specialist']:22} {mv:6} {len(i['warnings']):4}  "
-            f"{sh['agent']:22} {sv:6} {sw:>4}{tail}"
+            f"{r['inquiry_id']:8} {m['agent']:22} {m['verdict'] or '-':6} {m['warnings']:4}  {sh['agent']:22} {sv:6} {sw:>4}{tail}"
         )
+    t = rep["totals"]
     print(
-        f"合計 {len(rows)} 件: 本番 pass {tot['main_pass']} / 警告 {tot['main_warn']}、"
-        f"影 pass {tot['shadow_pass']} / 警告 {tot['shadow_warn']}"
+        f"合計 {t['count']} 件: 本番 pass {t['main_pass']} / 警告 {t['main_warnings']}、"
+        f"影 pass {t['shadow_pass']} / 警告 {t['shadow_warnings']}"
     )
     return 0
 
@@ -210,6 +181,11 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--only", nargs="+", metavar="ID", help="この問い合わせ ID だけ処理する")
     r.add_argument(
         "--shadow-config", metavar="FILE", help="影の設定 {カテゴリ: エージェント名}。影は記録のみ"
+    )
+    r.add_argument(
+        "--routing-config",
+        metavar="FILE",
+        help="本番の対応表の上書き {カテゴリ: エージェント名}。影の昇格後に使う",
     )
     m = r.add_mutually_exclusive_group()
     m.add_argument("--live", action="store_true", help="LLM を実際に呼ぶ（環境変数 INQUIRY_TRIAGE_*）")

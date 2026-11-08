@@ -112,14 +112,36 @@ def build_specialists(llm: LLMClient, table: dict[str, str] | None = None) -> di
     return {cat: build_specialist(llm, name) for cat, name in (table or SPECIALISTS).items()}
 
 
-def load_shadow_config(path: Path) -> dict[str, str]:
-    """影の設定 {カテゴリ: 影のエージェント名}。未知の名前・カテゴリは実行前に ValueError で止める。"""
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
+def validate_table(data: Any, label: str = "対応表") -> dict[str, str]:
+    """{カテゴリ: エージェント名} の形と、既知のカテゴリ・名前であることを確かめる。"""
     if not isinstance(data, dict) or not all(isinstance(v, str) for v in data.values()):
-        raise ValueError(f"影の設定はカテゴリ→エージェント名の対応表にしてください: {path}")
+        raise ValueError(f"{label}はカテゴリ→エージェント名の対応表にしてください")
     for cat, name in data.items():
         if cat not in CATEGORIES:
-            raise ValueError(f"影の設定: 未知のカテゴリ {cat!r}（{', '.join(CATEGORIES)}）")
+            raise ValueError(f"{label}: 未知のカテゴリ {cat!r}（{', '.join(CATEGORIES)}）")
         if name not in PERSONAS:
-            raise ValueError(f"影の設定: 未知のエージェント {name!r}（{', '.join(PERSONAS)}）")
-    return data
+            raise ValueError(f"{label}: 未知のエージェント {name!r}（{', '.join(PERSONAS)}）")
+    return dict(data)
+
+
+def load_table(path: Path, label: str) -> dict[str, str]:
+    return validate_table(json.loads(Path(path).read_text(encoding="utf-8")), label)
+
+
+def load_shadow_config(path: Path) -> dict[str, str]:
+    """影の設定 {カテゴリ: 影のエージェント名}。未知の名前・カテゴリは実行前に ValueError で止める。"""
+    return load_table(path, "影の設定")
+
+
+def load_routing_config(path: Path) -> dict[str, str]:
+    """本番の対応表の上書き {カテゴリ: 本番のエージェント名}。影を昇格させるとここに書き出される。"""
+    return load_table(path, "対応表の設定")
+
+
+def routing_table(override: dict[str, str] | None, shadow: dict[str, str] | None = None) -> dict[str, str]:
+    """既定の SPECIALISTS に上書きを重ねた本番の対応表。影と同じ名前になるカテゴリがあれば止める（比較にならない）。"""
+    table = {**SPECIALISTS, **(override or {})}
+    for cat, name in (shadow or {}).items():
+        if table.get(cat) == name:
+            raise ValueError(f"カテゴリ {cat} の本番と影が同じエージェント {name!r} です。比較になりません")
+    return table

@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any
 
-from inquiry_triage.agents import Reviewer, Router, Specialist, build_specialists
+from inquiry_triage.agents import Reviewer, Router, Specialist, build_specialists, routing_table
 from inquiry_triage.llm import LLMClient
 from inquiry_triage.models import URGENCY_ORDER, Article, Draft, Inquiry, QueueItem, Review, Routing
 from inquiry_triage.retrieval import retrieve
@@ -26,6 +26,7 @@ class Orchestrator:
     store: RunStore
     workers: int = 4
     shadow: dict[str, str] | None = None  # カテゴリ → 影のエージェント名（記録のみ、キューに出ない）
+    routing: dict[str, str] | None = None  # カテゴリ → 本番のエージェント名の上書き（昇格後の対応表）
     router: Router = field(init=False)
     reviewer: Reviewer = field(init=False)
     specialists: dict[str, Specialist] = field(init=False)
@@ -34,7 +35,13 @@ class Orchestrator:
     def __post_init__(self) -> None:
         self.router = Router(self.llm)
         self.reviewer = Reviewer(self.llm)
-        self.specialists = build_specialists(self.llm)
+        table = routing_table(self.routing)
+        for cat, name in (self.shadow or {}).items():
+            if table.get(cat) == name:
+                raise ValueError(
+                    f"カテゴリ {cat} の本番と影が同じエージェント {name!r} です。比較になりません"
+                )
+        self.specialists = build_specialists(self.llm, table)
         self.shadows = build_specialists(self.llm, self.shadow) if self.shadow else {}
 
     # --- 記録付きの 1 段 -------------------------------------------------

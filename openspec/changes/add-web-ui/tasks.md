@@ -1,8 +1,8 @@
 ## 1. API（Python、標準ライブラリ）
 
-- [ ] 1.1 store.py: キュー項目に状態と影の要約を合成する `queue_view(run)` と、1 件分（steps / item / decisions）を返す `inquiry_view(run, iid)` を足す。CLI の show / shadow-report もこれを使うように寄せる
-- [ ] 1.2 review のロジック（検証、decisions 追記、outbox 出力）を cli.py から `approval.py` に移し、CLI と API の両方から呼ぶ
-- [ ] 1.3 agents.py: `build_specialists(llm, routing=None)` で対応表の上書きを受け、設定の検証を shadow と共通化
+- [x] 1.1 store.py: キュー項目に状態と影の要約を合成する `queue_view(run)` と、1 件分（steps / item / decisions）を返す `inquiry_view(run, iid)` を足す。CLI の show / shadow-report もこれを使うように寄せる
+- [x] 1.2 review のロジック（検証、decisions 追記、outbox 出力）を cli.py から `approval.py` に移し、CLI と API の両方から呼ぶ
+- [x] 1.3 agents.py: `build_specialists(llm, routing=None)` で対応表の上書きを受け、設定の検証を shadow と共通化
 - [ ] 1.4 server.py: `http.server` で W6 の 6 エンドポイントと静的配信。cli に `serve --port`、`run --routing-config`
 - [ ] 1.5 tests/test_server.py: スレッドで立てて spec の 6 シナリオを 1 本ずつ
 

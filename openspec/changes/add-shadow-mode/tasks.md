@@ -6,4 +6,4 @@
 - [x] 1.4 cli: `run --shadow-config FILE`、`shadow-report [run_id]`、show --inquiry は変更なしで影の行が出ることを確認
 - [x] 1.5 fixture: `fixtures/shadow.json`、`fixtures/replay/billing_specialist_v2/INQ-001.json`、`fixtures/replay/reviewer/INQ-001.shadow.json`（INQ-004 の影は意図的に欠落させ、失敗の隔離のデモにする）
 - [x] 1.6 テスト: spec の 8 シナリオを 1 本ずつ
-- [ ] 1.7 docs/architecture.md の運用 4「（予定）」を外し、構成図に影の経路を点線で足す。README に 3 行
+- [x] 1.7 docs/architecture.md の運用 4「（予定）」を外し、構成図に影の経路を点線で足す。README に 3 行

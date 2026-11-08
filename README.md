@@ -21,6 +21,13 @@ uv run inquiry-triage review --inquiry INQ-003 --body fixed.txt                #
 uv run pytest -q
 ```
 
+新しい担当エージェントは「影」として試せる。本番と同じ入力で書かせて同じ検査にかけるが、結果は記録だけでキューには出ない。
+
+```sh
+uv run inquiry-triage run --shadow-config fixtures/shadow.json   # {"billing": "billing_specialist_v2"}
+uv run inquiry-triage shadow-report                              # 本番と影のレビュー判定・警告数を並べる
+```
+
 判断は `runs/<run_id>/decisions.jsonl` に追記されるだけで、`queue.json` と `steps.jsonl` は書き換えない。`show` の状態列は decisions.jsonl の最新判断から導く。
 
 実際に LLM を呼ぶときは OpenAI 互換エンドポイントを環境変数で渡す（依存の追加は無い）。
@@ -37,13 +44,13 @@ uv run inquiry-triage run --record --only INQ-001          # 実呼び出しの�
 src/inquiry_triage/
   models.py        データ構造。エージェント出力はここで検証
   llm.py           LLM 境界。ReplayClient / LiveClient（OpenAI 互換）/ RecordingClient
-  agents.py        Router / Specialist ×3 / Reviewer。対応表 SPECIALISTS
+  agents.py        Router / Specialist / Reviewer。PERSONAS（名前→人格）と SPECIALISTS（カテゴリ→本番の名前）、影の設定の検証
   retrieval.py     FAQ 記事の決定論的取得
   verify.py        決定論的検証（引用、禁止表現、長さ、プレースホルダ）
-  orchestrator.py  分岐・並列・失敗の隔離・記録
+  orchestrator.py  分岐・並列・失敗の隔離・記録。影の経路（記録のみ）
   store.py         runs/<run_id>/steps.jsonl, queue.json, decisions.jsonl
-  cli.py           run / show / review
-fixtures/          架空の問い合わせ 5 件、FAQ 6 本、規程、リプレイ用 LLM 出力
+  cli.py           run / show / review / shadow-report
+fixtures/          架空の問い合わせ 5 件、FAQ 6 本、規程、リプレイ用 LLM 出力、影の設定例
 openspec/          仕様（proposal / design / specs / tasks）。実装はここから Claude Code に委任
 ```
 

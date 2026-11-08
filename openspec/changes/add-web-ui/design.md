@@ -41,6 +41,12 @@ CLI（run / show / review / shadow-report）は揃っている。画面は「同
 - [http.server は本番向きでない] → Non-goal（ローカル 1 人）。design に明記。
 - [フロントのテストが薄い] → ロジックは API 側（Python、テスト済み）に寄せ、フロントは表示と送信だけにする。純粋関数（段のグループ化、比較表の整形）だけ vitest。
 
+## Review（2026-11-09、実装前）
+
+- 本人が承認。W1（標準ライブラリの http.server）は「大きな売りではないが筋が通っている」として維持、W4（昇格は routing.json の書き出し）も承認。
+- 画面の参考に本人が Gemini で作ったモックアップ画像を受け取った（job 側 .local に保存）。採るのはレイアウトだけ: ダークテーマ、左に一覧・右に詳細のマスター・ディテール、警告をカードで、影との左右比較をトグルで。文言は日本語で CLI と揃え、モックアップの英語ナビ（Inbox / Analytics / AI Specialists）は採らない。
+- 実装上の追加決定: 昇格の書き出し先は fixtures/ ではなくリポジトリ直下の routing.json / shadow.json（`serve --routing-config` / `--shadow-config` で指定、gitignore）。fixtures/shadow.json はテストとデモが依存するので書き換えない。`run --routing-config` は本番と影が同じ名前になる設定を拒否する。静的配信は web/dist 配下に解決したパスだけ返す。画面は hash で切り替え（#/queue、#/inquiry/ID、#/shadow）。
+
 ## Open Questions
 
 - 修正（edited）の本文入力は textarea で足りるか。差分表示は v2。

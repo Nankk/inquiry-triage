@@ -11,9 +11,18 @@ export function ShadowView({ run }: { run: string }) {
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    let alive = true;
     Promise.all([api.shadowReport(run), api.config()])
-      .then(([r, c]) => { setRep(r); setCfg(c); setErr(null); })
-      .catch((e) => setErr(e.message));
+      .then(([r, c]) => {
+        if (!alive) return;
+        setRep(r);
+        setCfg(c);
+        setErr(null);
+      })
+      .catch((e: Error) => alive && setErr(e.message));
+    return () => {
+      alive = false;
+    };
   }, [run, tick]);
 
   if (err) return <div className="msg err">{err}</div>;

@@ -37,11 +37,19 @@ export function App() {
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    api.runs().then((rs) => {
-      setRuns(rs);
-      if (rs.length && run === "latest") setRun(rs[0].run_id);
-    }).catch((e) => setErr(String(e.message ?? e)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let alive = true;
+    api
+      .runs()
+      .then((rs) => {
+        if (!alive) return;
+        setRuns(rs);
+        // 初回だけ最新の run を選ぶ。利用者が選び直した値は上書きしない
+        setRun((cur) => (cur === "latest" && rs.length ? rs[0].run_id : cur));
+      })
+      .catch((e: Error) => alive && setErr(e.message));
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const [title, sub] = TITLES[route.name];

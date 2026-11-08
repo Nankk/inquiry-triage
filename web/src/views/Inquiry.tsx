@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import { api, type InquiryView as IV } from "../api";
 import { STATUS_LABEL, STEP_LABEL, fmtMs, orderSteps, pairSides } from "../lib";
-import { SideBox } from "./Queue";
+import { SideBox } from "../components/SideBox";
 
 export function InquiryView({ run, id }: { run: string; id: string }) {
   const [view, setView] = useState<IV | null>(null);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
-    api.inquiry(run, id).then((v) => { setView(v); setErr(null); }).catch((e) => setErr(e.message));
+    let alive = true;
+    api
+      .inquiry(run, id)
+      .then((v) => {
+        if (!alive) return;
+        setView(v);
+        setErr(null);
+      })
+      .catch((e: Error) => alive && setErr(e.message));
+    return () => {
+      alive = false;
+    };
   }, [run, id]);
   if (err) return <div className="msg err">{err}</div>;
   if (!view) return <div className="empty">読み込み中</div>;

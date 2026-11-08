@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, type InquiryView as IV, type QueueItem, type Status } from "../api";
 import { STATUS_LABEL, URGENCY_LABEL, pairSides } from "../lib";
+import { SideBox } from "../components/SideBox";
 
 export function QueueView({ run, selected }: { run: string; selected?: string }) {
   const [items, setItems] = useState<QueueItem[]>([]);
@@ -9,7 +10,18 @@ export function QueueView({ run, selected }: { run: string; selected?: string })
   const reload = useCallback(() => setTick((t) => t + 1), []);
 
   useEffect(() => {
-    api.queue(run).then((q) => { setItems(q.items); setErr(null); }).catch((e) => setErr(e.message));
+    let alive = true;
+    api
+      .queue(run)
+      .then((q) => {
+        if (!alive) return;
+        setItems(q.items);
+        setErr(null);
+      })
+      .catch((e: Error) => alive && setErr(e.message));
+    return () => {
+      alive = false;
+    };
   }, [run, tick]);
 
   const sel = items.find((i) => i.inquiry_id === selected) ?? items[0];
@@ -51,7 +63,14 @@ function Detail({ run, item, onChanged }: { run: string; item: QueueItem; onChan
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api.inquiry(run, item.inquiry_id).then(setView).catch(() => setView(null));
+    let alive = true;
+    api
+      .inquiry(run, item.inquiry_id)
+      .then((v) => alive && setView(v))
+      .catch(() => alive && setView(null));
+    return () => {
+      alive = false;
+    };
   }, [run, item.inquiry_id, item.status]);
 
   const sides = view ? pairSides(view.steps) : null;
@@ -144,23 +163,6 @@ function Detail({ run, item, onChanged }: { run: string; item: QueueItem; onChan
             <button className="btn primary" onClick={() => act("accepted")} disabled={busy || !item.draft}>採用して送信箱へ</button>
           </>
         )}
-      </div>
-    </div>
-  );
-}
-
-export function SideBox(p: { label: string; who: string | null; body: string | null; verdict: string | null; reasons: string[]; warnings: string[]; failed: string | null }) {
-  const v = p.verdict;
-  const cls = v === "pass" ? "pass" : v === "flag" ? "flag" : v ? "fail" : "pending";
-  return (
-    <div className="col">
-      <h4>{p.label} <span className="who">{p.who ?? "-"}</span> {v && <span className={"badge " + cls}>{v}</span>}</h4>
-      <div className={"draft" + (p.body ? "" : " empty")}>{p.body ?? (p.failed ? `失敗: ${p.failed}` : "返信案なし")}</div>
-      <div className="warns" style={{ marginTop: 8 }}>
-        {p.warnings.map((w, i) => <div className="warn" key={"w" + i}>⚠ {w}</div>)}
-        {v === "flag" && p.reasons.map((r, i) => <div className="warn llm" key={"r" + i}>⚑ レビュー指摘: {r}</div>)}
-        {v === "失敗" && p.reasons.map((r, i) => <div className="warn llm" key={"f" + i}>⚑ レビュー失敗: {r}</div>)}
-        {p.body && p.warnings.length === 0 && v === "pass" && <div className="warn ok">✓ 警告なし、レビュー pass</div>}
       </div>
     </div>
   );

@@ -113,7 +113,7 @@ def test_show_inquiry_lists_both_paths(cwd, tmp_path, capsys):
     _run(tmp_path, "--shadow-config", str(FIX / "shadow.json"))
     capsys.readouterr()
     assert main(["--runs", str(tmp_path), "show", "--inquiry", "INQ-001"]) == 0
-    lines = [json.loads(ln) for ln in capsys.readouterr().out.splitlines() if ln.startswith("{\"")]
+    lines = [json.loads(ln) for ln in capsys.readouterr().out.splitlines() if ln.startswith('{"')]
     steps = {ln["step"]: ln for ln in lines}
     assert {"draft", "shadow_draft", "review", "shadow_review"} <= set(steps)
     assert steps["draft"]["output"]["body"] != steps["shadow_draft"]["output"]["body"]

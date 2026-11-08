@@ -3,6 +3,7 @@ name = "inquiry-triage"
 version = "0.1.0"
 description = "顧客問い合わせをマルチエージェントで仕分け・下書きし、人が承認して送るプロトタイプ"
 readme = "README.md"
+license = "MIT"
 authors = [
     { name = "Nankk Home", email = "43244127+Nankk@users.noreply.github.com" }
 ]

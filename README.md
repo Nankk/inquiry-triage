@@ -25,7 +25,7 @@ uv run inquiry-triage shadow-report                              # 本番と影�
 uv run pytest -q
 ```
 
-画面で使うなら、フロントエンドを 1 回ビルドしてサーバーを立てる（Node 20 以上）。
+画面で使うなら、フロントエンドを 1 回ビルドしてサーバーを立てる（Node 22）。
 
 ```sh
 cd web && npm ci && npm run build && cd ..
@@ -74,7 +74,7 @@ LLM の出力は dataclass に変換する時点で列挙値と必須項目を�
 
 新しい担当を本番に出す前に、記録だけの「影」として走らせる。`shadow.json` に `{"billing": "billing_specialist_v2"}` と書くと、billing の問い合わせで影の担当にも同じ入力（同じ問い合わせ、同じ候補記事）で返信案を書かせ、同じ 2 系統で検査する。キューの返信案と警告は本番のまま。影の失敗は本番に影響しない。
 
-`shadow-report`（または画面の「影の比較」）で本番と影のレビュー判定・警告数を並べ、人が昇格を決める。昇格は `routing.json` に「カテゴリ → 担当名」を書き出すだけで、`run --routing-config routing.json` が対応表を上書きする。コードは変わらない。
+`shadow-report`（または画面の「影の比較」）で本番と影のレビュー判定・警告数を並べ、人が昇格を決める。昇格は `routing.json` に「カテゴリ → 担当名」を書き出し、`shadow.json` から該当カテゴリを外すだけで、次回は `run --routing-config routing.json --shadow-config shadow.json` が新しい対応表を使う。コードは変わらない（`fixtures/shadow.json` を渡し続けると本番と影が同じになるので run が止まる）。
 
 ![影の比較](docs/img/shadow.png)
 

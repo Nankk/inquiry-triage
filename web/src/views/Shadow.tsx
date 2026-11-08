@@ -26,7 +26,7 @@ export function ShadowView({ run }: { run: string }) {
   async function promote(category: string, agent: string) {
     try {
       await api.promote(category, agent);
-      setMsg(`${category} の本番を ${agent} にしました。${cfg!.files.routing} に書き出し、${cfg!.files.shadow} から外しました。次回の run（--routing-config ${cfg!.files.routing}）から有効です`);
+      setMsg(`${category} の本番を ${agent} にしました。${cfg!.files.routing} に書き出し、${cfg!.files.shadow} から外しました。次回の run から有効です。次回は --routing-config ${cfg!.files.routing} を付け、影の設定は ${cfg!.files.shadow} を渡す（fixtures/shadow.json のままだと本番と影が同じになり run が止まります）`);
       setConfirm(null);
       setTick((t) => t + 1);
     } catch (e) {
@@ -109,7 +109,7 @@ export function ShadowView({ run }: { run: string }) {
           </tbody>
         </table>
         <div className="hint">
-          昇格は {cfg.files.routing} に書き出し、{cfg.files.shadow} から該当カテゴリを外すだけです。コードは変わりません。次回は <code>uv run inquiry-triage run --routing-config {cfg.files.routing}</code> で新しい対応表が使われます。
+          昇格は {cfg.files.routing} に書き出し、{cfg.files.shadow} から該当カテゴリを外すだけです。コードは変わりません。次回は <code>uv run inquiry-triage run --routing-config {cfg.files.routing} --shadow-config {cfg.files.shadow}</code> で新しい対応表が使われます（影の設定に fixtures/shadow.json を渡し続けると、本番と影が同じになり run が止まります）。
         </div>
       </div>
     </>

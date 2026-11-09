@@ -48,7 +48,7 @@ export function ShadowView({ run }: { run: string }) {
       {msg && <div className="msg ok">{msg}</div>}
       <div className="card" style={{ marginBottom: 16 }}>
         <div className="row between">
-          <b>{summarize(rep.totals)}</b>
+          <h3 className="lead">{summarize(rep.totals)}</h3>
           <span className="id">run {rep.run_id}</span>
         </div>
         {rep.rows.length > 0 && (
@@ -86,7 +86,7 @@ export function ShadowView({ run }: { run: string }) {
       </div>
 
       <div className="card">
-        <h3 style={{ margin: "0 0 10px", fontSize: 13, color: "var(--fg-2)" }}>対応表（カテゴリ → 本番の担当）と昇格</h3>
+        <h3>対応表（カテゴリ → 本番の担当）と昇格</h3>
         <table>
           <thead><tr><th>カテゴリ</th><th>本番</th><th>影</th><th></th></tr></thead>
           <tbody>
@@ -97,13 +97,13 @@ export function ShadowView({ run }: { run: string }) {
               return (
                 <tr key={c}>
                   <td><span className="badge cat">{c}</span></td>
-                  <td className="mono">{cur}{overridden && <span className="hint" style={{ display: "inline", marginLeft: 8 }}>（routing.json で上書き）</span>}</td>
-                  <td className="mono">{sh ?? <span style={{ color: "var(--fg-3)" }}>なし</span>}</td>
-                  <td style={{ textAlign: "right" }}>
+                  <td className="mono">{cur}{overridden && <span className="hint inline">（routing.json で上書き）</span>}</td>
+                  <td className="mono">{sh ?? <span className="muted">なし</span>}</td>
+                  <td className="num">
                     {sh && sh !== cur && (
                       confirm?.category === c ? (
-                        <span className="row" style={{ justifyContent: "flex-end" }}>
-                          <span className="hint">{sh} を {c} の本番にします。よいですか</span>
+                        <span className="row end">
+                          <span className="hint inline">{sh} を {c} の本番にします。よいですか</span>
                           <button className="btn" onClick={() => setConfirm(null)}>やめる</button>
                           <button className="btn primary" onClick={() => promote(c, sh)}>昇格する</button>
                         </span>
@@ -126,7 +126,7 @@ export function ShadowView({ run }: { run: string }) {
 }
 
 function Verdict({ v }: { v: string | null }) {
-  if (!v || v === "-") return <span style={{ color: "var(--fg-3)" }}>-</span>;
+  if (!v || v === "-") return <span className="muted">-</span>;
   const cls = v === "pass" ? "pass" : v === "flag" ? "flag" : "fail";
   return <span className={"badge " + cls}>{v}</span>;
 }

@@ -80,9 +80,6 @@ export function App() {
           {runs.length > 0 && route.name === "inquiry" && <InquiryView run={run} id={route.id} />}
           {runs.length > 0 && route.name === "shadow" && <ShadowView run={run} />}
         </div>
-        <div className="foot">
-          判断は decisions.jsonl に追記されるだけで、steps.jsonl と queue.json は書き換えません。昇格は routing.json に書き出され、次回の run から有効です。
-        </div>
       </main>
     </div>
   );

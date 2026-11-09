@@ -20,9 +20,9 @@ export function Suji({ suji, size, animate }: SujiProps) {
   const pad = large ? 24 : 6;
   const xs = STATIONS.map((_, i) => pad + ((W - pad * 2) * i) / (STATIONS.length - 1));
   const yMain = large ? 30 : 7;
-  const yShadow = large ? 46 : 16;
+  const yShadow = large ? 62 : 16;
   const rows = suji.shadow ? 2 : 1;
-  const H = large ? (rows === 2 ? 92 : 76) : rows === 2 ? 24 : 14;
+  const H = large ? (rows === 2 ? 96 : 66) : rows === 2 ? 24 : 14;
   const color = COLOR[suji.urgency];
   const w = WIDTH[suji.urgency];
   const labelMain = (i: number) => (suji.main.elapsed ? fmtMs(suji.main.elapsed[i]) : "");
@@ -47,13 +47,13 @@ export function Suji({ suji, size, animate }: SujiProps) {
       {large && (
         <g className="suji-ms">
           {STATIONS.map((_, i) => (
-            <text key={"m" + i} x={xs[i]} y={yMain + 18} textAnchor={i === 0 ? "start" : i === STATIONS.length - 1 ? "end" : "middle"}>
+            <text key={"m" + i} x={xs[i]} y={yMain + 16} textAnchor={i === 0 ? "start" : i === STATIONS.length - 1 ? "end" : "middle"}>
               {i <= suji.main.to ? labelMain(i) || (i === STATIONS.length - 1 ? "" : "") : ""}
             </text>
           ))}
           {suji.shadow &&
             STATIONS.map((_, i) => (
-              <text key={"s" + i} x={xs[i]} y={yShadow + 18} textAnchor={i === 0 ? "start" : i === STATIONS.length - 1 ? "end" : "middle"} className="suji-shadow-ms">
+              <text key={"s" + i} x={xs[i]} y={yShadow + 16} textAnchor={i === 0 ? "start" : i === STATIONS.length - 1 ? "end" : "middle"} className="suji-shadow-ms">
                 {i >= 1 && i <= suji.shadow!.to ? labelShadow(i) : ""}
               </text>
             ))}
@@ -94,7 +94,7 @@ function TrackLine({ track, xs, y, color, width, dashed, from = 0, animate }: { 
         />
       )}
       {track.terminal && (
-        <path d={`M${x1 + 7} ${y - 6} v12 M${x1 + 10} ${y - 6} v12`} className="suji-end" style={{ stroke: color }} />
+        <path d={`M${x1 + 8} ${y - 6} v12 M${x1 + 11} ${y - 6} v12`} className="suji-end" style={{ stroke: color }} />
       )}
     </g>
   );

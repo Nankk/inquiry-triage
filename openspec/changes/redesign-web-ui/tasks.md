@@ -15,4 +15,4 @@
 
 ## 4. 文書
 
-- [ ] 4.1 README と architecture.md の画像を差し替え（パスが同じなら参照は変えない）、design.md から DESIGN.md へのリンクを確かめ、Review 節に仕上げレビューの結果を写す
+- [x] 4.1 README と architecture.md の画像を差し替え（パスが同じなら参照は変えない）、design.md から DESIGN.md へのリンクを確かめ、Review 節に仕上げレビューの結果を写す

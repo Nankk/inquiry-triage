@@ -82,6 +82,8 @@ LLM の出力は dataclass に変換する時点で列挙値と必須項目を�
 
 `inquiry-triage serve` が JSON API（標準ライブラリの `http.server`）と `web/dist` を 1 プロセスで配る。画面は 3 枚。業務ロジックは持たず、CLI と同じ関数を呼ぶ。
 
+見た目は鉄道の運行図表に倣い、問い合わせ 1 件を 1 本の線（分類 → 担当 → 検査 → キュー。本番は実線、影は破線、失敗や判断は線路の記号）で描く。色は緊急度の 3 色だけ。決定は [DESIGN.md](DESIGN.md) と [openspec/changes/archive/](openspec/changes/archive/) の `redesign-web-ui` に残している。
+
 - 承認キュー: 一覧と詳細。採用・却下・修正をその場で。影があれば本番と左右に並べる
 - 1 件の追跡: 分類から承認までの各段のログと、本番と影の比較
 - 影の比較: shadow-report の表と、対応表の昇格
@@ -126,9 +128,10 @@ src/inquiry_triage/
 web/               Vite + React + TypeScript。画面 3 枚
 fixtures/          架空の問い合わせ 5 件、FAQ 6 本、規程、リプレイ用 LLM 出力、影の設定例
 openspec/          仕様。specs/ が現在の正典、changes/archive/ に経緯（proposal / design / tasks）
+PRODUCT.md         製品の事実（利用者、制約、用語）。DESIGN.md は見た目の決定（色・字・部品）。.impeccable/ はその設定
 .claude/           OpenSpec のスラッシュコマンド（ツール設定。OpenSpec 付属のものをそのまま置いている）
 ```
 
-仕様は change 単位で切ってある（`pipeline-skeleton` → `add-shadow-mode` → `add-web-ui` → `show-inquiry-body`）。各 design.md に決定と却下した代替案、レビューで変えた点を残している。
+仕様は change 単位で切ってある（`pipeline-skeleton` → `add-shadow-mode` → `add-web-ui` → `show-inquiry-body` → `redesign-web-ui`）。各 design.md に決定と却下した代替案、レビューで変えた点を残している。
 
 架空データのみ。実在の会社・顧客・業務データは含まない。

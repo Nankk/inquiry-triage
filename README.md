@@ -103,7 +103,7 @@ fixture のファイル名はプロンプトのハッシュではなく「エー
 ### 開発
 
 ```sh
-uv run pytest -q                 # 44 本。すべて fixture リプレイ、ネットワーク無し
+uv run pytest -q                 # 45 本。すべて fixture リプレイ、ネットワーク無し
 uv run ruff check src tests
 cd web && npm run dev            # Vite の開発サーバー。/api は serve（8765）へ中継
 cd web && npm test               # 画面側の純粋関数
@@ -129,6 +129,6 @@ openspec/          仕様。specs/ が現在の正典、changes/archive/ に経�
 .claude/           OpenSpec のスラッシュコマンド（ツール設定。OpenSpec 付属のものをそのまま置いている）
 ```
 
-仕様は change 単位で切ってある（`pipeline-skeleton` → `add-shadow-mode` → `add-web-ui`）。各 design.md に決定と却下した代替案、レビューで変えた点を残している。
+仕様は change 単位で切ってある（`pipeline-skeleton` → `add-shadow-mode` → `add-web-ui` → `show-inquiry-body`）。各 design.md に決定と却下した代替案、レビューで変えた点を残している。
 
 架空データのみ。実在の会社・顧客・業務データは含まない。

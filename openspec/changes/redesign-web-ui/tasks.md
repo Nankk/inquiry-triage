@@ -11,7 +11,7 @@
 
 ## 3. キャプチャ
 
-- [ ] 3.1 `uv run python scripts/screenshots.py` で docs/img の 3 枚（queue / inquiry / shadow）を撮り直す。影つきの run が runs/ に 1 つあることを先に確かめる
+- [x] 3.1 `uv run python scripts/screenshots.py` で docs/img の 3 枚（queue / inquiry / shadow）を撮り直す。影つきの run が runs/ に 1 つあることを先に確かめる
 
 ## 4. 文書
 

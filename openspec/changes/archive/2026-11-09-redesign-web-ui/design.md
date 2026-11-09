@@ -81,7 +81,7 @@
 ### D7. 記録の置き場
 
 - 方向の契約（THESIS / OWN-WORLD / STORY / FIRST VIEWPORT / FORM / FINISH）: `.impeccable/surfaces/` の surface brief。実装とレビューの基準
-- 設計システム（色・字・部品の決定）: 仕上げ時に Impeccable の documenter が `DESIGN.md` と `.impeccable/design.json` を生成する。生成後、ここからリンクする → [DESIGN.md](../../../DESIGN.md)（生成前はリンク切れ）
+- 設計システム（色・字・部品の決定）: 仕上げ時に Impeccable の documenter が `DESIGN.md` と `.impeccable/design.json` を生成する。生成後、ここからリンクする → [DESIGN.md](../../../../DESIGN.md)（生成前はリンク切れ）
 - 仕上げレビュー: Impeccable の finish reviewer を 1 往復。ship / fix の判定と残った指摘はこの design.md の Review 節に写す
 
 ## Risks / Trade-offs

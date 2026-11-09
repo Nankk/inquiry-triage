@@ -19,11 +19,19 @@ TBD - created by archiving change add-web-ui. Update Purpose after archive.
 - **THEN** 詳細に「本文なし（記録に含まれていません）」と出て、採用・却下・修正はそのままできる
 
 ### Requirement: 追跡画面
-画面は問い合わせ 1 件の段（route → retrieve → draft → review / verify → enqueue、影があれば shadow_*）を時系列に示し、本番と影の返信案・レビュー判定・警告を左右に並べて見せなければならない（SHALL）。問い合わせ本文は返信案の比較の上に表示する。
+画面は問い合わせ 1 件の段を 4 つの駅（分類・担当・検査・キュー、影があれば担当から破線）を等間隔に結ぶスジで示し、各段の所要時間（elapsed_ms）は位置ではなく駅の下の数字で添えなければならない（SHALL）。スジの下に steps.jsonl の行ごとの入出力の記録（route → retrieve → draft → review / verify → enqueue、影があれば shadow_*）を引き続き読める形で置き、スジはその要約であって置き換えではない。本番と影の返信案・レビュー判定・警告は左右に並べて見せる。問い合わせ本文は返信案の比較の上に表示する。
 
 #### Scenario: 左右比較
 - **WHEN** 影つきで run した INQ-001 を開く
 - **THEN** 左に本番（billing_specialist）の返信案と flag の理由、右に影（billing_specialist_v2）の返信案と pass が並ぶ
+
+#### Scenario: 所要時間は数字で読む
+- **WHEN** 担当の段だけ数秒かかった実モデルの記録（INQ-001）を開く
+- **THEN** 4 駅の間隔は等しいままで、担当の駅の下の数字だけが大きい。fixture リプレイの数ミリ秒の記録でも同じ間隔で描かれる
+
+#### Scenario: 各段の記録は引き続き読める
+- **WHEN** INQ-004 を開く
+- **THEN** スジの下に steps.jsonl の 7 行（route、retrieve、shadow_draft の失敗理由、draft、review の失敗理由、verify、enqueue）が段の順に、入出力の JSON のまま読める
 
 ### Requirement: 影の比較画面
 画面は shadow-report の表（本番と影のレビュー判定・警告数、失敗理由）と合計を示し、カテゴリごとに「昇格」の操作を持たなければならない（SHALL）。昇格は確認ダイアログを挟む。
@@ -31,4 +39,23 @@ TBD - created by archiving change add-web-ui. Update Purpose after archive.
 #### Scenario: 昇格の動線
 - **WHEN** billing の行で「昇格」を押して確認する
 - **THEN** routing.json に billing → billing_specialist_v2 が書き出され、画面に「次回の run から有効」と表示される
+
+### Requirement: 段のスジ
+承認キュー画面の一覧の各項目と詳細、追跡画面は、問い合わせ 1 件の段を 4 つの駅（分類・担当・検査・キュー）を等間隔に結ぶ一本の線（スジ）として描かなければならない（SHALL）。駅は LLM か人が関わり失敗や警告が出うる点に限り、FAQ 表引きは担当の駅の注記（渡した記事 ID）とする。本番は実線、影は破線で担当の駅から始まる。線がその駅で止まって終端記号が付くのは、その件が返信案なしでキューに載る場合（分類か担当の失敗、カテゴリ other）だけ。レビューの失敗は本番の線を止めず、検査の駅に失敗の記号を付けて警告「レビュー失敗」に対応させる。影の失敗は破線だけがその駅で止まる。線の色と太さは緊急度（high / normal / low）の 3 段で、全画面で同じ。
+
+#### Scenario: 影つきの項目
+- **WHEN** 影つきで run した INQ-001 を一覧で見る
+- **THEN** 実線が 4 駅を結び、その下に破線が担当の駅からキューの駅まで並走する。分類の駅に破線は無い
+
+#### Scenario: 人が直接対応
+- **WHEN** INQ-005（other）を一覧で見る
+- **THEN** 実線は分類の駅で止まり、終端記号が付く。担当・検査・キューの駅は結ばれない
+
+#### Scenario: レビュー失敗と影の失敗
+- **WHEN** INQ-004（レビューの fixture が無く、影の担当の fixture も無い）を一覧と詳細で見る
+- **THEN** 本番の実線は 4 駅を結んだまま、検査の駅に失敗の記号が付き、警告の「レビュー失敗」1 行に対応する。影の破線は担当の駅で止まって終端記号が付く
+
+#### Scenario: 緊急度で太さと色が変わる
+- **WHEN** INQ-001（high）、INQ-004（normal）、INQ-003（low）を並べて見る
+- **THEN** 3 本の線の太さと色が緊急度の 3 段で異なり、一覧と詳細と追跡画面で同じ対応になる
 

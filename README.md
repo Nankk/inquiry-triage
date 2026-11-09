@@ -103,7 +103,7 @@ fixture のファイル名はプロンプトのハッシュではなく「エー
 ### 開発
 
 ```sh
-uv run pytest -q                 # 39 本。すべて fixture リプレイ、ネットワーク無し
+uv run pytest -q                 # 44 本。すべて fixture リプレイ、ネットワーク無し
 uv run ruff check src tests
 cd web && npm run dev            # Vite の開発サーバー。/api は serve（8765）へ中継
 cd web && npm test               # 画面側の純粋関数

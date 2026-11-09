@@ -9,6 +9,7 @@ import { Mark } from "../components/Mark";
 export function QueueView({ run, selected }: { run: string; selected?: string }) {
   const [items, setItems] = useState<QueueItem[]>([]);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
   const reload = useCallback(() => setTick((t) => t + 1), []);
 
@@ -20,8 +21,13 @@ export function QueueView({ run, selected }: { run: string; selected?: string })
         if (!alive) return;
         setItems(q.items);
         setErr(null);
+        setLoading(false);
       })
-      .catch((e: Error) => alive && setErr(e.message));
+      .catch((e: Error) => {
+        if (!alive) return;
+        setErr(e.message);
+        setLoading(false);
+      });
     return () => {
       alive = false;
     };
@@ -49,7 +55,7 @@ export function QueueView({ run, selected }: { run: string; selected?: string })
               <Suji suji={sujiFromItem(i)} size="s" />
             </a>
           ))}
-          {items.length === 0 && <div className="empty">キューが空です</div>}
+          {items.length === 0 && <div className="empty">{loading ? "読み込み中" : "キューが空です"}</div>}
         </div>
         {sel && <Detail key={sel.inquiry_id + run} run={run} item={sel} onChanged={reload} />}
       </div>

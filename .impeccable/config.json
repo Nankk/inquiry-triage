@@ -1,3 +1,18 @@
 {
-  "buildPath": "code"
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "codex-grid-background",
+        "value": "*",
+        "files": [
+          "web/src/styles.css"
+        ],
+        "createdAt": "2026-11-09T16:25:20.017Z",
+        "reason": "user confirmed: openspec/changes/redesign-web-ui/design.md D2-3 で作者が指定した運行図表の方眼。殻だけに敷き、本文・返信案・警告の面には敷かない"
+      }
+    ]
+  }
 }

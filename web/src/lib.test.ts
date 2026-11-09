@@ -69,6 +69,14 @@ describe("sujiFromItem / sujiFromSteps（design.md D2-8, 9）", () => {
     expect(s.main).toMatchObject({ to: 3, failedAt: null, terminal: false });
     expect(s.shadow).toMatchObject({ to: 3, failedAt: null, terminal: false });
     expect(s.articles).toEqual(["KB-B01"]);
+    expect(s.decided).toBe(false);
+  });
+  it("警告の印: 検証の警告は四角、レビュー指摘は三角。判断済みはキューの駅に終端記号", () => {
+    const s = sujiFromItem(item({ status: "rejected", warnings: ["禁止表現: 期日の約束", "レビュー指摘: 規程 2 に反する"], shadow: { agent: "v2", verdict: "flag", warnings: 0, failed: null } }));
+    expect(s.main.marks).toEqual({ det: true, flag: true });
+    expect(s.shadow?.marks).toEqual({ det: false, flag: true });
+    expect(s.decided).toBe(true);
+    expect(sujiFromItem(item({ warnings: ["人が直接対応"] })).main.marks).toEqual({ det: false, flag: false });
   });
   it("INQ-004: レビュー失敗は本番の線を止めず検査に記号、影の担当の失敗は破線が担当で止まる", () => {
     const s = sujiFromItem(item({
@@ -100,7 +108,7 @@ describe("sujiFromItem / sujiFromSteps（design.md D2-8, 9）", () => {
       step({ step: "enqueue" }),
     ];
     const s = sujiFromSteps(steps, item({ inquiry_id: "INQ-004", urgency: "normal", shadow: { agent: "billing_specialist_v2", verdict: null, warnings: null, failed: "fixture missing" } }));
-    expect(s.main).toEqual({ to: 3, failedAt: 2, terminal: false, elapsed: [0.5, 1300, 0.7, null] });
-    expect(s.shadow).toEqual({ to: 1, failedAt: 1, terminal: true, elapsed: [null, 0.1, null, null] });
+    expect(s.main).toEqual({ to: 3, failedAt: 2, terminal: false, elapsed: [0.5, 1300, 0.7, null], marks: { det: false, flag: false } });
+    expect(s.shadow).toEqual({ to: 1, failedAt: 1, terminal: true, elapsed: [null, 0.1, null, null], marks: { det: false, flag: false } });
   });
 });

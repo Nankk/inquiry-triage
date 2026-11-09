@@ -199,11 +199,10 @@ td.num, th.num { text-align: right; }
 .card > h3 .who { margin-left: 8px; }
 h3.lead { margin: 0; font-size: 14px; color: var(--ink); letter-spacing: 0; }
 .warn { display: flex; align-items: flex-start; gap: 8px; }
-.mark { flex: none; margin-top: 4px; }
-.mark.flag { fill: var(--high-line); }
-.mark.warn { fill: var(--normal-line); }
-.mark.ok { fill: var(--ok-text); }
-.warn.llm .mark.flag { fill: var(--high-text); }
+.mk { flex: none; margin-top: 4px; width: 10px; height: 10px; }
+.mk-flag { fill: var(--high-text); }
+.mk-warn { fill: var(--normal-text); }
+.mk-ok { fill: var(--ok-text); }
 .hint.inline { display: inline; margin: 0 0 0 8px; }
 .muted { color: var(--ink-3); }
 .row.end { justify-content: flex-end; }
@@ -214,4 +213,11 @@ h3.lead { margin: 0; font-size: 14px; color: var(--ink); letter-spacing: 0; }
 .suji.l { min-width: 640px; }
 .pagehead { flex-wrap: wrap; row-gap: 2px; }
 .pagehead h1, .id { white-space: nowrap; }
-.warn .mark.warn { fill: var(--normal-text); }
+
+/* ---- 仕上げレビュー（2.4）の修正 ------------------------------------------ */
+.split > * { min-width: 0; }
+.suji-fit { min-width: 0; overflow-x: auto; }
+.suji .suji-decided { fill: var(--ink); stroke: var(--card); stroke-width: 1.5; }
+.suji .suji-legend text { fill: var(--ink-3); font-size: 10.5px; }
+.tablewrap { overflow-x: auto; }
+.tablewrap table { min-width: 560px; }

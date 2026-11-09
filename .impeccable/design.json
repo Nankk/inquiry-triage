@@ -1,0 +1,608 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-10T02:46:24+10:00",
+  "title": "Design System: inquiry-triage",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "紙白",
+        "canonical": "#f7f6f2",
+        "tonalRamp": [
+          "#262523",
+          "#4a4845",
+          "#6e6c68",
+          "#93908b",
+          "#b7b4ae",
+          "#d8d6d1",
+          "#ebe9e5",
+          "#f7f6f2"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "白（読む面）",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#262626",
+          "#4d4d4d",
+          "#737373",
+          "#999999",
+          "#bfbfbf",
+          "#e0e0e0",
+          "#f2f2f2",
+          "#ffffff"
+        ]
+      },
+      "card-sunk": {
+        "role": "neutral",
+        "displayName": "沈んだ白（非選択の札）",
+        "canonical": "#fbfbf9",
+        "tonalRamp": [
+          "#272726",
+          "#4c4c4a",
+          "#71716e",
+          "#969693",
+          "#bbbbb8",
+          "#dcdcd9",
+          "#eeeeeb",
+          "#fbfbf9"
+        ]
+      },
+      "grid": {
+        "role": "neutral",
+        "displayName": "方眼（殻だけ）",
+        "canonical": "#dfe5ec",
+        "tonalRamp": [
+          "#1e252c",
+          "#3b4651",
+          "#596877",
+          "#7a8b9c",
+          "#9dadbd",
+          "#bfcbd7",
+          "#dfe5ec",
+          "#f1f4f7"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "罫線",
+        "canonical": "#d6dce3",
+        "tonalRamp": [
+          "#1d2228",
+          "#3a444e",
+          "#586675",
+          "#788899",
+          "#9aaabb",
+          "#b8c3cf",
+          "#d6dce3",
+          "#edf0f4"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "墨",
+        "canonical": "#1c2430",
+        "tonalRamp": [
+          "#1c2430",
+          "#2a3444",
+          "#45505f",
+          "#637080",
+          "#8591a0",
+          "#aab3bf",
+          "#cfd5dc",
+          "#eceff3"
+        ]
+      },
+      "ink-2": {
+        "role": "primary",
+        "displayName": "墨の中",
+        "canonical": "#45505f",
+        "tonalRamp": [
+          "#1c2430",
+          "#2a3444",
+          "#45505f",
+          "#637080",
+          "#8591a0",
+          "#aab3bf",
+          "#cfd5dc",
+          "#eceff3"
+        ]
+      },
+      "ink-3": {
+        "role": "primary",
+        "displayName": "墨の薄（補助文字、紙白の上で 4.67:1）",
+        "canonical": "#637080",
+        "tonalRamp": [
+          "#1c2430",
+          "#2a3444",
+          "#45505f",
+          "#637080",
+          "#8591a0",
+          "#aab3bf",
+          "#cfd5dc",
+          "#eceff3"
+        ]
+      },
+      "tint": {
+        "role": "neutral",
+        "displayName": "薄墨（既定の札）",
+        "canonical": "#eceff3",
+        "tonalRamp": [
+          "#1c2430",
+          "#2a3444",
+          "#45505f",
+          "#637080",
+          "#8591a0",
+          "#aab3bf",
+          "#cfd5dc",
+          "#eceff3"
+        ]
+      },
+      "tint-2": {
+        "role": "neutral",
+        "displayName": "薄墨の濃",
+        "canonical": "#e2e7ec",
+        "tonalRamp": [
+          "#1c2430",
+          "#2a3444",
+          "#45505f",
+          "#637080",
+          "#8591a0",
+          "#aab3bf",
+          "#cfd5dc",
+          "#e2e7ec"
+        ]
+      },
+      "high-line": {
+        "role": "secondary",
+        "displayName": "高・赤の線（3px）",
+        "canonical": "#d6362c",
+        "tonalRamp": [
+          "#3a0e0b",
+          "#6b1812",
+          "#95201a",
+          "#b3261e",
+          "#d6362c",
+          "#e4766f",
+          "#efb0ab",
+          "#f6dbd8"
+        ]
+      },
+      "high-text": {
+        "role": "secondary",
+        "displayName": "高・赤の文字（塗りの上で 4.99:1）",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "#3a0e0b",
+          "#6b1812",
+          "#95201a",
+          "#b3261e",
+          "#d6362c",
+          "#e4766f",
+          "#efb0ab",
+          "#f6dbd8"
+        ]
+      },
+      "high-tint": {
+        "role": "secondary",
+        "displayName": "高・赤の塗り",
+        "canonical": "#f6dbd8",
+        "tonalRamp": [
+          "#3a0e0b",
+          "#6b1812",
+          "#95201a",
+          "#b3261e",
+          "#d6362c",
+          "#e4766f",
+          "#efb0ab",
+          "#f6dbd8"
+        ]
+      },
+      "normal-line": {
+        "role": "secondary",
+        "displayName": "中・橙の線（2px）",
+        "canonical": "#c2661a",
+        "tonalRamp": [
+          "#33190a",
+          "#5e2e0c",
+          "#7f4210",
+          "#9a5210",
+          "#c2661a",
+          "#d9924f",
+          "#eabf93",
+          "#f6e3c8"
+        ]
+      },
+      "normal-text": {
+        "role": "secondary",
+        "displayName": "中・橙の文字（塗りの上で 4.67:1）",
+        "canonical": "#9a5210",
+        "tonalRamp": [
+          "#33190a",
+          "#5e2e0c",
+          "#7f4210",
+          "#9a5210",
+          "#c2661a",
+          "#d9924f",
+          "#eabf93",
+          "#f6e3c8"
+        ]
+      },
+      "normal-tint": {
+        "role": "secondary",
+        "displayName": "中・橙の塗り",
+        "canonical": "#f6e3c8",
+        "tonalRamp": [
+          "#33190a",
+          "#5e2e0c",
+          "#7f4210",
+          "#9a5210",
+          "#c2661a",
+          "#d9924f",
+          "#eabf93",
+          "#f6e3c8"
+        ]
+      },
+      "low-line": {
+        "role": "secondary",
+        "displayName": "低・墨の線（1.2px）",
+        "canonical": "#1c2430",
+        "tonalRamp": [
+          "#1c2430",
+          "#2a3444",
+          "#45505f",
+          "#637080",
+          "#8591a0",
+          "#aab3bf",
+          "#cfd5dc",
+          "#e9edf1"
+        ]
+      },
+      "low-text": {
+        "role": "secondary",
+        "displayName": "低・墨の文字",
+        "canonical": "#1c2430",
+        "tonalRamp": [
+          "#1c2430",
+          "#2a3444",
+          "#45505f",
+          "#637080",
+          "#8591a0",
+          "#aab3bf",
+          "#cfd5dc",
+          "#e9edf1"
+        ]
+      },
+      "low-tint": {
+        "role": "secondary",
+        "displayName": "低・墨の塗り",
+        "canonical": "#e9edf1",
+        "tonalRamp": [
+          "#1c2430",
+          "#2a3444",
+          "#45505f",
+          "#637080",
+          "#8591a0",
+          "#aab3bf",
+          "#cfd5dc",
+          "#e9edf1"
+        ]
+      },
+      "ok-text": {
+        "role": "tertiary",
+        "displayName": "合格の緑（塗りの上で 5.26:1）",
+        "canonical": "#1f6b3f",
+        "tonalRamp": [
+          "#0d2b1a",
+          "#154a2b",
+          "#1f6b3f",
+          "#2f8a55",
+          "#55a675",
+          "#86c29d",
+          "#b7dbc4",
+          "#dcebe1"
+        ]
+      },
+      "ok-tint": {
+        "role": "tertiary",
+        "displayName": "合格の緑の塗り",
+        "canonical": "#dcebe1",
+        "tonalRamp": [
+          "#0d2b1a",
+          "#154a2b",
+          "#1f6b3f",
+          "#2f8a55",
+          "#55a675",
+          "#86c29d",
+          "#b7dbc4",
+          "#dcebe1"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "画面の h1 と詳細の h2（ID と件名）。帯の名前は 700 の 17px。"
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "一覧の札の件名。"
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "本文の既定。tabular-nums は body に一括指定。"
+      },
+      "body-draft": {
+        "displayName": "Draft body",
+        "purpose": "返信案と問い合わせ本文。pre-wrap、行間 1.75。"
+      },
+      "label": {
+        "displayName": "Section label",
+        "purpose": "節見出し（問い合わせ、返信案、警告、各段）。ink-2。表頭は同じ 12px 700 に 0.04em。"
+      },
+      "identifier": {
+        "displayName": "Identifier",
+        "purpose": "ID、担当名、カテゴリ。等幅ではなく同じ族に字間（--mono は --sans の別名）。"
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "メタ情報、脚注、ヒント、札の文字。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow",
+        "value": "0 6px 18px rgba(28, 36, 48, 0.12), 0 1px 2px rgba(28, 36, 48, 0.08)",
+        "purpose": "選択中の一覧項目 1 つだけ（.card.sel、translateY(-1px) と組）。他の面に影はない。"
+      }
+    ],
+    "focus": [
+      {
+        "name": "focus-visible",
+        "value": "outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 2px;",
+        "purpose": "全ての操作部品に共通。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "全ての遷移の既定イージング。"
+      },
+      {
+        "name": "suji-draw",
+        "value": "stroke-dashoffset 1 → 0, 180ms var(--ease), pathLength=1",
+        "purpose": "詳細で項目が選ばれたとき本番の線だけ左から引く。唯一の演出。"
+      },
+      {
+        "name": "button-state",
+        "value": "background 120ms, color 120ms",
+        "purpose": ".btn のホバー。"
+      },
+      {
+        "name": "card-state",
+        "value": "background 160ms, box-shadow 200ms, transform 200ms",
+        "purpose": "一覧の札の選択・ホバー。"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }",
+        "purpose": "全て止める。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "1000px",
+        "purpose": "未満で分割と 2 列を 1 列に、詳細の粘着を解き、帯を折り返す。左右の余白 28px → 16px。"
+      }
+    ],
+    "sujiStrokes": {
+      "main": {
+        "high": "3px",
+        "normal": "2px",
+        "low": "1.2px"
+      },
+      "shadow": {
+        "rule": "max(1.2, main * 0.6)",
+        "high": "1.8px",
+        "normal": "1.2px",
+        "low": "1.2px",
+        "dasharray": "6 4"
+      },
+      "bed": {
+        "width": "1px",
+        "color": "var(--rule)",
+        "dasharray": "1 4"
+      },
+      "station": {
+        "mainRadius": 3.4,
+        "shadowRadius": 2.6,
+        "fill": "var(--ink)",
+        "stroke": "var(--card) 1.5px"
+      },
+      "symbols": {
+        "fail": "11px triangle above station",
+        "detWarn": "6px square above 検査",
+        "llmFlag": "7px triangle above 検査",
+        "terminal": "two 2px bars, height 12, after a 12px stub",
+        "decided": "9px filled square at キュー"
+      },
+      "geometry": {
+        "stations": [
+          "分類",
+          "担当",
+          "検査",
+          "キュー"
+        ],
+        "spacing": "equal",
+        "padLarge": 24,
+        "padSmall": 6,
+        "minWidthLarge": 640,
+        "viewBoxSmall": 400,
+        "heights": {
+          "l": [
+            66,
+            96
+          ],
+          "s": [
+            14,
+            24
+          ]
+        },
+        "msOffsetY": 16
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "墨の塗りの主ボタン。操作列の右端に 1 つ（採用して送信箱へ、修正して採用、昇格する）。",
+      "html": "<button class=\"ds-btn ds-btn-primary\">採用して送信箱へ</button>",
+      "css": ".ds-btn { font: 700 14px/1.55 var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); border: 1px solid var(--ink, #1c2430); background: var(--card, #fff); color: var(--ink, #1c2430); padding: 7px 14px; border-radius: 2px; cursor: pointer; transition: background 120ms cubic-bezier(0.16, 1, 0.3, 1), color 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn:focus-visible { outline: 2px solid var(--ink, #1c2430); outline-offset: 2px; } .ds-btn:disabled { opacity: 0.45; cursor: default; } .ds-btn-primary { background: var(--ink, #1c2430); color: var(--paper, #f7f6f2); } .ds-btn-primary:hover { background: #2a3444; }"
+    },
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "白地に墨の枠の通常ボタン（修正、やめる、影を本番に昇格）。",
+      "html": "<button class=\"ds-btn\">修正</button>",
+      "css": ".ds-btn { font: 700 14px/1.55 var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); border: 1px solid var(--ink, #1c2430); background: var(--card, #fff); color: var(--ink, #1c2430); padding: 7px 14px; border-radius: 2px; cursor: pointer; transition: background 120ms cubic-bezier(0.16, 1, 0.3, 1), color 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn:hover { background: var(--tint, #eceff3); } .ds-btn:focus-visible { outline: 2px solid var(--ink, #1c2430); outline-offset: 2px; } .ds-btn:disabled { opacity: 0.45; cursor: default; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "枠と文字が高緊急度の赤。却下だけ。",
+      "html": "<button class=\"ds-btn ds-btn-danger\">却下</button>",
+      "css": ".ds-btn { font: 700 14px/1.55 var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); border: 1px solid var(--ink, #1c2430); background: var(--card, #fff); color: var(--ink, #1c2430); padding: 7px 14px; border-radius: 2px; cursor: pointer; transition: background 120ms cubic-bezier(0.16, 1, 0.3, 1), color 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn:focus-visible { outline: 2px solid var(--ink, #1c2430); outline-offset: 2px; } .ds-btn-danger { border-color: var(--high-line, #d6362c); color: var(--high-text, #b3261e); } .ds-btn-danger:hover { background: var(--high-tint, #f6dbd8); }"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "白地、1px の墨の枠、2px の角。理由の入力欄と run の選択、修正の textarea に共通。",
+      "html": "<input class=\"ds-input\" placeholder=\"理由（任意）\" aria-label=\"理由\">",
+      "css": ".ds-input { font: 400 14px/1.55 var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); background: var(--card, #fff); color: var(--ink, #1c2430); border: 1px solid var(--ink, #1c2430); border-radius: 2px; padding: 6px 9px; caret-color: var(--ink, #1c2430); min-width: 180px; } .ds-input::placeholder { color: var(--ink-3, #637080); } .ds-input:focus-visible { outline: 2px solid var(--ink, #1c2430); outline-offset: 2px; }"
+    },
+    {
+      "name": "Top Band",
+      "kind": "nav",
+      "refersTo": "topbar",
+      "description": "56px の帯、下に 2px の墨の罫。名前と副題、タブ 2 つ（選択中は墨の下線 3px）、右端に run 選択。殻なので方眼が透ける。",
+      "html": "<header class=\"ds-topbar\"><div class=\"ds-brand\">inquiry-triage<small>問い合わせの仕分けと承認</small></div><nav class=\"ds-nav\"><a href=\"#\" class=\"ds-active\">承認キュー</a><a href=\"#\">影の比較</a></nav><div class=\"ds-runsel\"><label>実行（run）</label><select class=\"ds-select\"><option>20261109T162036Z（5 件）</option></select></div></header>",
+      "css": ".ds-topbar { font-family: var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); font-size: 14px; color: var(--ink, #1c2430); height: 56px; display: flex; align-items: stretch; gap: 8px; padding: 0 28px; border-bottom: 2px solid var(--ink, #1c2430); background-color: var(--paper, #f7f6f2); background-image: linear-gradient(var(--grid, #dfe5ec) 1px, transparent 1px), linear-gradient(90deg, var(--grid, #dfe5ec) 1px, transparent 1px); background-size: 24px 24px; background-position: -1px -1px; } .ds-brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 17px; letter-spacing: 0.02em; margin-right: 20px; } .ds-brand small { font-weight: 400; font-size: 12px; color: var(--ink-2, #45505f); } .ds-nav { display: flex; gap: 2px; } .ds-nav a { display: flex; align-items: center; padding: 0 14px; color: var(--ink-2, #45505f); text-decoration: none; font-weight: 700; border-bottom: 3px solid transparent; margin-bottom: -2px; } .ds-nav a:hover { color: var(--ink, #1c2430); } .ds-nav a.ds-active { color: var(--ink, #1c2430); border-bottom-color: var(--ink, #1c2430); } .ds-nav a:focus-visible { outline: 2px solid var(--ink, #1c2430); outline-offset: 2px; border-radius: 2px; } .ds-runsel { margin-left: auto; display: flex; align-items: center; gap: 8px; } .ds-runsel label { color: var(--ink-2, #45505f); font-size: 12px; white-space: nowrap; } .ds-select { font: inherit; background: var(--card, #fff); color: var(--ink, #1c2430); border: 1px solid var(--ink, #1c2430); border-radius: 2px; padding: 6px 8px 6px 9px; }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "枠線なしの札。塗りと文字色だけ。緊急度（高・中・低は 700）、状態（未決・採用・却下）、判定（pass・flag・fail）。",
+      "html": "<span class=\"ds-badge ds-badge-high\">高</span> <span class=\"ds-badge ds-badge-normal\">中</span> <span class=\"ds-badge ds-badge-low\">低</span> <span class=\"ds-badge\">未決</span> <span class=\"ds-badge ds-badge-ok\">採用</span> <span class=\"ds-badge ds-badge-rejected\">却下</span> <span class=\"ds-badge ds-badge-flag\">flag</span>",
+      "css": ".ds-badge { font-family: var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); display: inline-block; padding: 1px 8px; border-radius: 2px; font-size: 12px; line-height: 1.5; white-space: nowrap; background: var(--tint, #eceff3); color: var(--ink-2, #45505f); } .ds-badge-high { background: var(--high-tint, #f6dbd8); color: var(--high-text, #b3261e); font-weight: 700; } .ds-badge-normal { background: var(--normal-tint, #f6e3c8); color: var(--normal-text, #9a5210); font-weight: 700; } .ds-badge-low { background: var(--low-tint, #e9edf1); color: var(--low-text, #1c2430); font-weight: 700; } .ds-badge-ok { background: var(--ok-tint, #dcebe1); color: var(--ok-text, #1f6b3f); } .ds-badge-rejected { background: var(--high-tint, #f6dbd8); color: var(--high-text, #b3261e); } .ds-badge-flag { background: var(--normal-tint, #f6e3c8); color: var(--normal-text, #9a5210); }"
+    },
+    {
+      "name": "Queue Card",
+      "kind": "card",
+      "refersTo": "card-click",
+      "description": "一覧の項目。非選択は沈んだ白（#fbfbf9）、ホバーで白、選択中は白に 1 つの影と 1px の持ち上がり。枠線なし。下に小さいスジ。",
+      "html": "<a href=\"#\" class=\"ds-card ds-card-click ds-card-sel\"><div class=\"ds-row\"><span class=\"ds-id\">INQ-001</span><span class=\"ds-title\">同じ月に 2 回請求されています</span><span class=\"ds-badge\">未決</span></div><div class=\"ds-meta\"><span>緊急度 <span class=\"ds-badge ds-badge-high\">高</span></span><span>担当 <b>billing_specialist</b></span><span>警告 <b>1</b></span></div><svg class=\"ds-suji-s\" viewBox=\"0 0 400 24\" width=\"100%\" height=\"24\" role=\"img\" aria-label=\"分類 → 担当 → 検査 → キュー、影は担当から\"><line x1=\"6\" y1=\"7\" x2=\"394\" y2=\"7\" stroke=\"#d6dce3\" stroke-width=\"1\" stroke-dasharray=\"1 4\"/><line x1=\"6\" y1=\"7\" x2=\"394\" y2=\"7\" stroke=\"#d6362c\" stroke-width=\"3\"/><circle cx=\"6\" cy=\"7\" r=\"3.4\" fill=\"#1c2430\" stroke=\"#fff\" stroke-width=\"1.5\"/><circle cx=\"135.3\" cy=\"7\" r=\"3.4\" fill=\"#1c2430\" stroke=\"#fff\" stroke-width=\"1.5\"/><circle cx=\"264.7\" cy=\"7\" r=\"3.4\" fill=\"#1c2430\" stroke=\"#fff\" stroke-width=\"1.5\"/><circle cx=\"394\" cy=\"7\" r=\"3.4\" fill=\"#1c2430\" stroke=\"#fff\" stroke-width=\"1.5\"/><path d=\"M261.2 1 h7 l-3.5 -6.5 z\" fill=\"#d6362c\"/><line x1=\"135.3\" y1=\"16\" x2=\"394\" y2=\"16\" stroke=\"#d6362c\" stroke-width=\"1.8\" stroke-dasharray=\"6 4\"/><circle cx=\"135.3\" cy=\"16\" r=\"2.6\" fill=\"#1c2430\" stroke=\"#fff\" stroke-width=\"1.5\"/><circle cx=\"264.7\" cy=\"16\" r=\"2.6\" fill=\"#1c2430\" stroke=\"#fff\" stroke-width=\"1.5\"/><circle cx=\"394\" cy=\"16\" r=\"2.6\" fill=\"#1c2430\" stroke=\"#fff\" stroke-width=\"1.5\"/></svg></a>",
+      "css": ".ds-card { font-family: var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); font-size: 14px; line-height: 1.55; font-variant-numeric: tabular-nums; color: var(--ink, #1c2430); background: var(--card, #fff); border-radius: 3px; padding: 12px 16px; } .ds-card-click { display: block; text-decoration: none; cursor: pointer; background: #fbfbf9; transition: background 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 200ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-card-click:hover { background: var(--card, #fff); } .ds-card-sel { background: var(--card, #fff); box-shadow: 0 6px 18px rgba(28, 36, 48, 0.12), 0 1px 2px rgba(28, 36, 48, 0.08); transform: translateY(-1px); } .ds-card-click:focus-visible { outline: 2px solid var(--ink, #1c2430); outline-offset: 2px; } .ds-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .ds-id { color: var(--ink-3, #637080); font-size: 12px; letter-spacing: 0.04em; } .ds-title { flex: 1; font-weight: 700; font-size: 15px; } .ds-meta { color: var(--ink-2, #45505f); font-size: 12.5px; display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; } .ds-meta b { color: var(--ink, #1c2430); font-weight: 400; letter-spacing: 0.01em; } .ds-card .ds-badge { display: inline-block; padding: 1px 8px; border-radius: 2px; font-size: 12px; line-height: 1.5; white-space: nowrap; background: var(--tint, #eceff3); color: var(--ink-2, #45505f); margin-left: auto; } .ds-card .ds-badge-high { background: var(--high-tint, #f6dbd8); color: var(--high-text, #b3261e); font-weight: 700; margin-left: 0; } .ds-suji-s { display: block; overflow: visible; margin-top: 8px; }"
+    },
+    {
+      "name": "Warning Row",
+      "kind": "custom",
+      "refersTo": "warn",
+      "description": "警告の 1 行。塗りと 10px の記号で種類を分ける: 四角 = 決定論的検証（橙）、三角 = LLM の指摘・失敗（赤）、丸 = 問題なし（緑）。左の罫はない。",
+      "html": "<div class=\"ds-warns\"><div class=\"ds-warn\"><svg class=\"ds-mk\" viewBox=\"0 0 10 10\" width=\"10\" height=\"10\" aria-hidden=\"true\"><rect x=\"1\" y=\"1\" width=\"8\" height=\"8\"/></svg>禁止表現: 「必ず」が含まれています</div><div class=\"ds-warn ds-warn-llm\"><svg class=\"ds-mk\" viewBox=\"0 0 10 10\" width=\"10\" height=\"10\" aria-hidden=\"true\"><path d=\"M0.5 9.5 H9.5 L5 1 Z\"/></svg>レビュー指摘: 規程に反し、担当者の確認前に処理を確約している</div><div class=\"ds-warn ds-warn-ok\"><svg class=\"ds-mk\" viewBox=\"0 0 10 10\" width=\"10\" height=\"10\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"5\" r=\"4\"/></svg>警告なし、レビュー pass</div></div>",
+      "css": ".ds-warns { font-family: var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); display: flex; flex-direction: column; gap: 6px; } .ds-warn { display: flex; align-items: flex-start; gap: 8px; border-radius: 2px; padding: 7px 10px; font-size: 13px; line-height: 1.55; background: var(--normal-tint, #f6e3c8); color: var(--normal-text, #9a5210); } .ds-warn .ds-mk { flex: none; margin-top: 4px; width: 10px; height: 10px; fill: currentColor; } .ds-warn-llm { background: var(--high-tint, #f6dbd8); color: var(--high-text, #b3261e); } .ds-warn-ok { background: var(--ok-tint, #dcebe1); color: var(--ok-text, #1f6b3f); }"
+    },
+    {
+      "name": "Suji (large)",
+      "kind": "custom",
+      "refersTo": "detail",
+      "description": "署名部品。4 駅等間隔の運行図表。本番は実線、影は担当から破線（本番の 0.6 倍、最小 1.2px）。太さと色は緊急度（高 3px #d6362c、中 2px #c2661a、低 1.2px 墨）。記号: 失敗 11px 三角、検査の上に 6px 四角（検証）と 7px 三角（レビュー）、車止め、判断済みの 9px 塗り四角。ms は駅の下の数字。選択時に本番の線が 180ms で引かれる。",
+      "html": "<div class=\"ds-diagram\"><svg class=\"ds-suji\" viewBox=\"0 0 640 96\" width=\"640\" height=\"96\" role=\"img\" aria-label=\"分類 → 担当 → 検査 → キュー、影は担当から\"><g class=\"ds-names\"><text x=\"24\" y=\"12\" text-anchor=\"start\">分類</text><text x=\"221.3\" y=\"12\" text-anchor=\"middle\">担当<tspan class=\"ds-note\">　記事 KB-B01</tspan></text><text x=\"418.7\" y=\"12\" text-anchor=\"middle\">検査</text><text x=\"616\" y=\"12\" text-anchor=\"end\">キュー</text></g><line x1=\"24\" y1=\"30\" x2=\"616\" y2=\"30\" class=\"ds-bed\"/><line x1=\"24\" y1=\"30\" x2=\"616\" y2=\"30\" stroke=\"#d6362c\" stroke-width=\"3\" pathLength=\"1\" class=\"ds-draw\"/><circle cx=\"24\" cy=\"30\" r=\"3.4\" class=\"ds-station\"/><circle cx=\"221.3\" cy=\"30\" r=\"3.4\" class=\"ds-station\"/><circle cx=\"418.7\" cy=\"30\" r=\"3.4\" class=\"ds-station\"/><circle cx=\"616\" cy=\"30\" r=\"3.4\" class=\"ds-station\"/><path d=\"M415.2 24 h7 l-3.5 -6.5 z\" fill=\"#d6362c\"/><line x1=\"221.3\" y1=\"62\" x2=\"616\" y2=\"62\" stroke=\"#d6362c\" stroke-width=\"1.8\" stroke-dasharray=\"6 4\"/><circle cx=\"221.3\" cy=\"62\" r=\"2.6\" class=\"ds-station\"/><circle cx=\"418.7\" cy=\"62\" r=\"2.6\" class=\"ds-station\"/><circle cx=\"616\" cy=\"62\" r=\"2.6\" class=\"ds-station\"/><g class=\"ds-ms\"><text x=\"24\" y=\"46\" text-anchor=\"start\">2 ms</text><text x=\"221.3\" y=\"46\" text-anchor=\"middle\">1 ms</text><text x=\"418.7\" y=\"46\" text-anchor=\"middle\">1 ms</text><text x=\"221.3\" y=\"78\" text-anchor=\"middle\" class=\"ds-shadow-ms\">0 ms</text><text x=\"418.7\" y=\"78\" text-anchor=\"middle\" class=\"ds-shadow-ms\">0 ms</text></g><g class=\"ds-legend\" transform=\"translate(616 89)\"><text x=\"-96\" y=\"3\" text-anchor=\"end\">本番</text><line x1=\"-92\" y1=\"0\" x2=\"-62\" y2=\"0\" stroke=\"#d6362c\" stroke-width=\"3\"/><text x=\"-40\" y=\"3\" text-anchor=\"end\">影</text><line x1=\"-36\" y1=\"0\" x2=\"-6\" y2=\"0\" stroke=\"#d6362c\" stroke-width=\"1.8\" stroke-dasharray=\"6 4\"/></g></svg></div>",
+      "css": ".ds-diagram { padding: 10px 14px 6px; background: var(--paper, #f7f6f2); border-radius: 3px; overflow-x: auto; } .ds-suji { display: block; overflow: visible; min-width: 640px; font-family: var(--sans, \"BIZ UDPGothic\", \"Hiragino Sans\", \"Noto Sans JP\", \"Yu Gothic UI\", system-ui, sans-serif); font-variant-numeric: tabular-nums; } .ds-suji text { fill: var(--ink-2, #45505f); font-size: 11.5px; } .ds-suji .ds-names text { fill: var(--ink, #1c2430); font-weight: 700; font-size: 12px; } .ds-suji .ds-note { fill: var(--ink-3, #637080); font-weight: 400; font-size: 11px; } .ds-suji .ds-ms text { fill: var(--ink-2, #45505f); font-size: 11px; } .ds-suji .ds-shadow-ms { fill: var(--ink-3, #637080); } .ds-suji .ds-legend text { fill: var(--ink-3, #637080); font-size: 10.5px; } .ds-suji .ds-bed { stroke: var(--rule, #d6dce3); stroke-width: 1; stroke-dasharray: 1 4; } .ds-suji .ds-station { fill: var(--ink, #1c2430); stroke: var(--card, #fff); stroke-width: 1.5; } .ds-suji .ds-draw { stroke-dasharray: 1; stroke-dashoffset: 0; animation: ds-suji-draw 180ms cubic-bezier(0.16, 1, 0.3, 1); } @keyframes ds-suji-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } } @media (prefers-reduced-motion: reduce) { .ds-suji .ds-draw { animation: none; } }"
+    },
+    {
+      "name": "Mark",
+      "kind": "custom",
+      "refersTo": "warn",
+      "description": "10px の SVG 記号。スジと同じ語彙: 三角 = LLM の指摘や失敗、四角 = 決定論的検証の警告、丸 = 問題なし。グリフアイコンは使わない。",
+      "html": "<svg class=\"ds-mk ds-mk-flag\" viewBox=\"0 0 10 10\" width=\"10\" height=\"10\" aria-hidden=\"true\"><path d=\"M0.5 9.5 H9.5 L5 1 Z\"/></svg> <svg class=\"ds-mk ds-mk-warn\" viewBox=\"0 0 10 10\" width=\"10\" height=\"10\" aria-hidden=\"true\"><rect x=\"1\" y=\"1\" width=\"8\" height=\"8\"/></svg> <svg class=\"ds-mk ds-mk-ok\" viewBox=\"0 0 10 10\" width=\"10\" height=\"10\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"5\" r=\"4\"/></svg>",
+      "css": ".ds-mk { width: 10px; height: 10px; vertical-align: middle; } .ds-mk-flag { fill: var(--high-text, #b3261e); } .ds-mk-warn { fill: var(--normal-text, #9a5210); } .ds-mk-ok { fill: var(--ok-text, #1f6b3f); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "運行図表",
+    "overview": "問い合わせ 1 件は 1 本の列車である。分類・担当・検査・キューの 4 段は等間隔の駅で、本番の線は実線、影（シャドーモード）の線は担当の駅から並走する破線。緊急度は列車種別の線の太さと色（高 = 赤 3px、中 = 橙 2px、低 = 墨 1.2px）で、失敗・車止め・人の判断は線路記号（三角、二本の縦棒、塗りの四角）で持つ。新しい色は増やさない。\n\n地は紙白で、殻（上部の帯と一覧の背景）にだけ 24px の薄い青灰の方眼が敷かれ、本文・返信案・警告の読む面は無地の白。墨 1 色が罫、文字、主ボタンの塗りを兼ねる。字は OS のゴシック 1 族で Web フォントを読み込まず、数字は tabular-nums。日中の明るい事務所で何十件も読む担当者のための業務ツールで、短い事実文で「何を書き換え、何を書き換えないか」を画面が言う（判断は decisions.jsonl に追記されるだけ、昇格は次回の run から有効）。\n\n拒むのは、近黒の地に色札と角丸カードを並べる管理画面と、その裏返しの白地・灰の枠線・青ボタンの管理画面。札に枠線はなく、塗りか文字色だけ。影は選択中の一覧項目 1 つにしか落ちない。",
+    "keyCharacteristics": [
+      "紙白の地と墨 1 色。色は緊急度の 3 段と合格の緑だけ",
+      "方眼は殻だけ。読む面（本文・返信案・警告）は無地の白",
+      "状態は色ではなく線の形（実線・破線・車止め・記号）で持つ",
+      "1 族のゴシック、tabular-nums、12px 太字 0.06em の節見出し",
+      "角丸 2〜3px、2px の墨の罫、1px の薄い罫線、枠線なしの札",
+      "動きは状態の変化だけ（120〜200ms）。唯一の演出は選択時の 180ms の線引き"
+    ],
+    "rules": [
+      {
+        "name": "The Three Trains Rule",
+        "body": "色は緊急度の 3 段（高・中・低）だけで、一覧・詳細・追跡の全画面で同じ太さと色。合格の緑を除き、新しい状態に新しい色を与えない。状態は線の形で持つ。",
+        "section": "colors"
+      },
+      {
+        "name": "The Shell Grid Rule",
+        "body": "方眼は殻（帯と一覧の背景）にだけ敷く。本文・返信案・警告・表の面は無地の白か紙白。",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Border Chip Rule",
+        "body": "札に枠線を付けない。塗り（*-tint）と文字色（*-text）だけで種類を分ける。",
+        "section": "colors"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "字は 1 族。等幅フォントや Web フォントを読み込まない。識別子は字間で区別し、字体では区別しない。",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "数字は常に tabular-nums。所要時間（ms）、文字数、警告数は桁が揃って並ぶ。",
+        "section": "typography"
+      },
+      {
+        "name": "The One Lift Rule",
+        "body": "影は選択中の一覧項目 1 つにだけ落ちる。非選択の項目は不透明度ではなく地の明度（#fbfbf9）で沈める。補助文字の対比を保つため。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do 駅は分類・担当・検査・キューの 4 つを等間隔に置き、所要時間は駅の下の数字（ms）で添える。位置を時間に比例させない。",
+      "Do 影の線（破線）は担当の駅から始める。分類は本番と共通なので影の線は分類に無い。",
+      "Do 方眼（24px、#dfe5ec）は殻（帯と一覧の背景）だけに敷く。本文・返信案・警告の面は無地の白。",
+      "Do 状態は線の形で持つ: 本番 = 実線、影 = 破線、返信案なし = 線が止まって車止め、失敗 = 駅の三角、判断済み = キューの塗りの四角。色は緊急度の 3 段だけ。",
+      "Do 詳細の情報の順序は 本文 → 返信案（本番｜影）→ 警告 → 操作 を守る。主ボタンは操作列の右端に 1 つ。",
+      "Do 札は枠線なしで、塗り（*-tint）か文字色（*-text）だけ。小さな文字は地の上で 4.5:1 以上。",
+      "Do 非選択の一覧項目は地の明度（#fbfbf9）で沈め、選択中だけ 1 つの影で持ち上げる。",
+      "Do 記号はスジと同じ語彙の SVG（三角・四角・丸、10px 前後）で統一する。",
+      "Do 動きは状態の変化だけ（120〜200ms、cubic-bezier(0.16, 1, 0.3, 1)）。prefers-reduced-motion で全て止める。",
+      "Do hash の URL（#/queue、#/queue/ID、#/inquiry/ID、#/shadow）を維持する。変えるなら scripts/screenshots.py も同じ change で直す。",
+      "Do 返信案には文字数だけを添える。"
+    ],
+    "donts": [
+      "Don't 緊急度の 3 段と合格の緑以外に色を増やさない。新しい状態は線の形か塗りの濃淡で持つ。",
+      "Don't Web フォント、等幅フォント、アイコンフォント、グリフアイコンを読み込まない。字は OS のゴシック 1 族。",
+      "Don't 読む面（本文・返信案・警告・表）に方眼や影を置かない。",
+      "Don't 札やカードに枠線を付けない。ボタンと入力欄の 1px の墨の枠だけが枠。",
+      "Don't 非選択の項目や補助文字を不透明度で沈めない（無効のボタンの 0.45 だけが例外）。",
+      "Don't 依存を足さない（react と react-dom のみ、UI ライブラリや CSS フレームワークを入れない）。",
+      "Don't 画面に業務ロジックを持ち込まない。verify.py の返信案の長さ上限を画面に写さない。超過は検証の警告が担い、画面は文字数だけを出す。",
+      "Don't 近黒の地、色札と角丸の大きいカード、青いボタン、灰の枠線の管理画面に戻さない。",
+      "Don't 読み込みの演出や装飾のアニメーションを足さない。"
+    ]
+  }
+}

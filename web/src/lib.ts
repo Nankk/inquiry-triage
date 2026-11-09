@@ -113,6 +113,8 @@ export interface Track {
   terminal: boolean;
   /** 駅ごとの所要時間（ms）。追跡画面だけ */
   elapsed: (number | null)[] | null;
+  /** 検査の駅に立てる警告の印。det = 決定論的検証の警告あり（四角）、flag = レビューの指摘あり（三角） */
+  marks: { det: boolean; flag: boolean };
 }
 
 export interface Suji {
@@ -123,7 +125,13 @@ export interface Suji {
   shadow: Track | null;
   /** 担当の駅の注記（渡した記事 ID）。無ければ空 */
   articles: string[];
+  /** 人が判断済み（accepted / rejected / edited）。キューの駅に終端記号 */
+  decided: boolean;
 }
+
+const NO_MARKS = { det: false, flag: false };
+/** 決定論的検証の警告か。レビュー由来と「人が直接対応」の案内は除く */
+const isDetWarning = (w: string) => !w.startsWith("レビュー") && !w.startsWith("分類失敗") && !w.startsWith("返信案の生成失敗") && !w.startsWith("カテゴリ ") && w !== "人が直接対応";
 
 export function urgency3(u: string): Urgency3 {
   return u === "high" || u === "normal" || u === "low" ? u : "low";
@@ -137,20 +145,32 @@ export function sujiFromItem(item: QueueItem): Suji {
   let main: Track;
   if (!item.specialist) {
     // 分類の失敗、またはカテゴリ other（人が直接対応）。線は分類で止まる
-    main = { to: 0, failedAt: w.some((x) => x.startsWith("分類失敗")) ? 0 : null, terminal: true, elapsed: noElapsed() };
+    main = { to: 0, failedAt: w.some((x) => x.startsWith("分類失敗")) ? 0 : null, terminal: true, elapsed: noElapsed(), marks: NO_MARKS };
   } else if (!item.draft) {
-    main = { to: 1, failedAt: 1, terminal: true, elapsed: noElapsed() };
+    main = { to: 1, failedAt: 1, terminal: true, elapsed: noElapsed(), marks: NO_MARKS };
   } else {
-    main = { to: 3, failedAt: w.some((x) => x.startsWith("レビュー失敗")) ? 2 : null, terminal: false, elapsed: noElapsed() };
+    main = {
+      to: 3,
+      failedAt: w.some((x) => x.startsWith("レビュー失敗")) ? 2 : null,
+      terminal: false,
+      elapsed: noElapsed(),
+      marks: { det: w.some(isDetWarning), flag: w.some((x) => x.startsWith("レビュー指摘")) },
+    };
   }
-  return { urgency: urgency3(item.urgency), main, shadow: shadowTrack(item.shadow, null), articles: item.candidate_ids ?? [] };
+  return {
+    urgency: urgency3(item.urgency),
+    main,
+    shadow: shadowTrack(item.shadow, null),
+    articles: item.candidate_ids ?? [],
+    decided: item.status === "accepted" || item.status === "rejected" || item.status === "edited",
+  };
 }
 
 function shadowTrack(sh: ShadowSummary | null | undefined, elapsed: (number | null)[] | null): Track | null {
   if (!sh) return null;
-  if (sh.failed) return { to: 1, failedAt: 1, terminal: true, elapsed };
+  if (sh.failed) return { to: 1, failedAt: 1, terminal: true, elapsed, marks: NO_MARKS };
   const reviewFailed = typeof sh.verdict === "string" && sh.verdict.startsWith("失敗");
-  return { to: 3, failedAt: reviewFailed ? 2 : null, terminal: false, elapsed };
+  return { to: 3, failedAt: reviewFailed ? 2 : null, terminal: false, elapsed, marks: { det: (sh.warnings ?? 0) > 0, flag: sh.verdict === "flag" } };
 }
 
 /** steps.jsonl から導く（追跡画面用）。失敗は段の status で読み、所要時間を添える。 */
@@ -173,7 +193,12 @@ export function sujiFromSteps(steps: Step[], item: QueueItem): Suji {
   if (sd) {
     const sr = by("shadow_review"), sv = by("shadow_verify");
     const elapsed = [null, ms(sd), checkMs(sr, sv), null];
-    shadow = sd.status === "failed" ? { to: 1, failedAt: 1, terminal: true, elapsed } : { to: 3, failedAt: sr?.status === "failed" ? 2 : null, terminal: false, elapsed };
+    const verdict = sr?.status === "ok" && sr.output && !Array.isArray(sr.output) ? (sr.output as { verdict?: string }).verdict : undefined;
+    const det = Array.isArray(sv?.output) && sv.output.length > 0;
+    shadow =
+      sd.status === "failed"
+        ? { to: 1, failedAt: 1, terminal: true, elapsed, marks: NO_MARKS }
+        : { to: 3, failedAt: sr?.status === "failed" ? 2 : null, terminal: false, elapsed, marks: { det, flag: verdict === "flag" } };
   }
   return { ...base, main, shadow };
 }

@@ -52,7 +52,7 @@ export function ShadowView({ run }: { run: string }) {
           <span className="id">run {rep.run_id}</span>
         </div>
         {rep.rows.length > 0 && (
-          <table style={{ marginTop: 10 }}>
+          <div className="tablewrap" style={{ marginTop: 10 }}><table>
             <thead>
               <tr>
                 <th>ID</th><th>カテゴリ</th>
@@ -81,13 +81,13 @@ export function ShadowView({ run }: { run: string }) {
                 );
               })}
             </tbody>
-          </table>
+          </table></div>
         )}
       </div>
 
       <div className="card">
         <h3>対応表（カテゴリ → 本番の担当）と昇格</h3>
-        <table>
+        <div className="tablewrap"><table>
           <thead><tr><th>カテゴリ</th><th>本番</th><th>影</th><th></th></tr></thead>
           <tbody>
             {cfg.categories.filter((c) => c !== "other").map((c) => {
@@ -116,7 +116,7 @@ export function ShadowView({ run }: { run: string }) {
               );
             })}
           </tbody>
-        </table>
+        </table></div>
         <div className="hint">
           昇格は {cfg.files.routing} に書き出し、{cfg.files.shadow} から該当カテゴリを外すだけです。コードは変わりません。次回は <code>uv run inquiry-triage run --routing-config {cfg.files.routing} --shadow-config {cfg.files.shadow}</code> で新しい対応表が使われます（影の設定に fixtures/shadow.json を渡し続けると、本番と影が同じになり run が止まります）。
         </div>

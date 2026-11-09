@@ -55,33 +55,33 @@ export function App() {
   const [title, sub] = TITLES[route.name];
   return (
     <div className="app">
-      <aside className="side">
+      <header className="topbar">
         <div className="brand">inquiry-triage<small>問い合わせの仕分けと承認</small></div>
-        <nav className="nav">
-          <a href="#/queue" className={route.name !== "shadow" ? "active" : ""}>承認キュー</a>
-          <a href="#/shadow" className={route.name === "shadow" ? "active" : ""}>影の比較</a>
+        <nav className="nav" aria-label="画面">
+          <a href="#/queue" className={route.name !== "shadow" ? "active" : ""} aria-current={route.name !== "shadow" ? "page" : undefined}>承認キュー</a>
+          <a href="#/shadow" className={route.name === "shadow" ? "active" : ""} aria-current={route.name === "shadow" ? "page" : undefined}>影の比較</a>
         </nav>
         <div className="runsel">
-          <label>実行（run）</label>
-          <select value={run} onChange={(e) => setRun(e.target.value)}>
+          <label htmlFor="run">実行（run）</label>
+          <select id="run" value={run} onChange={(e) => setRun(e.target.value)}>
             {runs.length === 0 && <option value="latest">（実行がありません）</option>}
             {runs.map((r) => (
               <option key={r.run_id} value={r.run_id}>{r.run_id}（{r.items} 件）</option>
             ))}
           </select>
         </div>
-        <div className="foot">
-          判断は decisions.jsonl に追記されるだけで、steps.jsonl と queue.json は書き換えません。昇格は routing.json に書き出され、次回の run から有効です。
-        </div>
-      </aside>
+      </header>
       <main className="main">
-        <div className="topbar"><h1>{title}</h1><span className="sub">{sub}</span></div>
+        <div className="pagehead"><h1>{title}</h1><span className="sub">{sub}</span></div>
         <div className="content">
           {err && <div className="msg err">{err}</div>}
           {runs.length === 0 && !err && <div className="empty">実行がありません。まず <code>uv run inquiry-triage run</code> を実行してください。</div>}
           {runs.length > 0 && route.name === "queue" && <QueueView run={run} selected={route.id} />}
           {runs.length > 0 && route.name === "inquiry" && <InquiryView run={run} id={route.id} />}
           {runs.length > 0 && route.name === "shadow" && <ShadowView run={run} />}
+        </div>
+        <div className="foot">
+          判断は decisions.jsonl に追記されるだけで、steps.jsonl と queue.json は書き換えません。昇格は routing.json に書き出され、次回の run から有効です。
         </div>
       </main>
     </div>

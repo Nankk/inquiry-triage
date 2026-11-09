@@ -89,6 +89,11 @@ def cmd_show(a: argparse.Namespace) -> int:
         if view is None:
             print(f"{a.inquiry} はこの実行のキューにありません", file=sys.stderr)
             return 2
+        item = view["item"]
+        print(f"[{item['inquiry_id']}] {item['subject']}  差出人={item['customer']}")
+        print("--- 問い合わせ ---")
+        _print_body(item, indent="")
+        print("\n--- 各段（steps.jsonl）---")
         for st in view["steps"]:
             print(json.dumps(st, ensure_ascii=False))
         print("\n--- キュー項目 ---")
@@ -99,10 +104,21 @@ def cmd_show(a: argparse.Namespace) -> int:
     return 0
 
 
+NO_BODY = "本文なし（記録に含まれていません）"  # この列が無い古い queue.json 用
+
+
+def _print_body(item: dict, indent: str = "  ") -> None:
+    body = item.get("body")
+    for line in (body if body is not None else NO_BODY).splitlines():
+        print(f"{indent}{line}")
+
+
 def _print_item(item: dict, status: str) -> None:
     print(
-        f"[{item['inquiry_id']}] {item['subject']}  緊急度={item['urgency']} 担当={item['specialist'] or '-'} 状態={status}"
+        f"[{item['inquiry_id']}] {item['subject']}  差出人={item['customer']} 緊急度={item['urgency']} 担当={item['specialist'] or '-'} 状態={status}"
     )
+    print("  --- 問い合わせ ---")
+    _print_body(item)
     for w in item["warnings"]:
         print(f"  ! {w}")
     d = item["draft"]

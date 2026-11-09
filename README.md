@@ -58,7 +58,7 @@ flowchart LR
 | FAQ 表引き | コード | category + 本文 | 候補記事 ID（該当分だけ） | — |
 | 担当 | LLM | 問い合わせ + 候補記事だけ | body、cited[]、ask_customer[]、confidence | 同上 |
 | レビュー ∥ 検証 | LLM ∥ コード | 返信案 + 規程 ∥ 返信案 + 候補 ID | verdict と reasons ∥ 警告[] | レビュー失敗は警告 1 行、検証結果は残る |
-| 承認 | 人 | キュー項目 | accepted / rejected / edited | — |
+| 承認 | 人 | キュー項目（問い合わせ本文と返信案） | accepted / rejected / edited | — |
 
 LLM の出力は dataclass に変換する時点で列挙値と必須項目を検証する。壊れた出力はその段の失敗として記録し、その 1 件だけを人に回す。
 
@@ -67,7 +67,7 @@ LLM の出力は dataclass に変換する時点で列挙値と必須項目を�
 `runs/<run_id>/` に 3 つ。後段が前段を書き換えない。
 
 - `steps.jsonl`: 追記専用。1 行 = 1 段（step、agent、inquiry_id、input、output、elapsed_ms、status）。影の段は `shadow_*`
-- `queue.json`: run の終わりに 1 回書く。以後触らない
+- `queue.json`: 人が見る単位（問い合わせ本文、分類、返信案、警告）。run の終わりに 1 回書く。以後触らない
 - `decisions.jsonl`: 人の判断を追記。状態（pending / accepted / rejected / edited）はここから導く。採用・修正した本文だけ `outbox/<run_id>/<ID>.txt` に出る
 
 ### 影（シャドーモード）

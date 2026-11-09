@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api, type InquiryView as IV } from "../api";
 import { STATUS_LABEL, STEP_LABEL, fmtMs, orderSteps, pairSides } from "../lib";
 import { SideBox } from "../components/SideBox";
+import { InquiryBody } from "../components/InquiryBody";
 
 export function InquiryView({ run, id }: { run: string; id: string }) {
   const [view, setView] = useState<IV | null>(null);
@@ -32,6 +33,11 @@ export function InquiryView({ run, id }: { run: string; id: string }) {
           <span className={"badge " + item.status}>{STATUS_LABEL[item.status] ?? item.status}</span>
         </div>
         <a href={`#/queue/${item.inquiry_id}`}>← 承認キューへ戻る</a>
+      </div>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <h3 style={{ margin: "0 0 10px", fontSize: 13, color: "var(--fg-2)" }}>問い合わせ <span className="who" style={{ color: "var(--fg-3)", fontWeight: 400 }}>{item.customer}</span></h3>
+        <InquiryBody body={item.body} />
       </div>
 
       <div className="card" style={{ marginBottom: 16 }}>

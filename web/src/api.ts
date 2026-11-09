@@ -21,6 +21,7 @@ export interface QueueItem {
   inquiry_id: string;
   customer: string;
   subject: string;
+  body?: string | null; // この列より前の run の queue.json には無い
   urgency: Urgency | string;
   category: string;
   specialist: string | null;

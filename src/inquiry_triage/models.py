@@ -128,6 +128,7 @@ class QueueItem:
     inquiry_id: str
     customer: str
     subject: str
+    body: str  # 問い合わせ本文。inbox の値をそのまま写す（人が返信案と見比べる材料）
     urgency: str
     category: str
     specialist: str | None

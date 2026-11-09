@@ -238,6 +238,7 @@ class Orchestrator:
             inquiry_id=inq.id,
             customer=inq.customer,
             subject=inq.subject,
+            body=inq.body,
             urgency=routing.urgency if routing else "high",  # 分類できないものは先頭に出す
             category=routing.category if routing else "unknown",
             specialist=specialist,

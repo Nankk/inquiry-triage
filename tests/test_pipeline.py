@@ -31,6 +31,14 @@ def test_all_inquiries_reach_queue(run):
     assert set(items) == {f"INQ-00{n}" for n in range(1, 6)}
 
 
+def test_queue_items_carry_inquiry_body(run):
+    """人が返信案と見比べるため、queue.json の各項目に inbox の本文がそのまま入る（show-inquiry-body）。"""
+    _, store = run
+    inbox = {d["id"]: d["body"] for d in json.loads((FIX / "inbox.json").read_text(encoding="utf-8"))}
+    recorded = {i["inquiry_id"]: i["body"] for i in store.read_queue()}
+    assert recorded == inbox
+
+
 def test_other_category_goes_to_human(run):
     items, _ = run
     assert items["INQ-005"].specialist is None

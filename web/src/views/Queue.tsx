@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api, type InquiryView as IV, type QueueItem, type Status } from "../api";
 import { STATUS_LABEL, URGENCY_LABEL, pairSides } from "../lib";
 import { SideBox } from "../components/SideBox";
+import { InquiryBody } from "../components/InquiryBody";
 
 export function QueueView({ run, selected }: { run: string; selected?: string }) {
   const [items, setItems] = useState<QueueItem[]>([]);
@@ -106,6 +107,11 @@ function Detail({ run, item, onChanged }: { run: string; item: QueueItem; onChan
       </div>
 
       {msg && <div className={"msg " + msg.kind} style={{ marginTop: 12 }}>{msg.text}</div>}
+
+      <div className="sec">
+        <h3>問い合わせ</h3>
+        <InquiryBody body={item.body} />
+      </div>
 
       <div className="sec">
         <div className="row between">

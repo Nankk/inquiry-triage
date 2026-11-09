@@ -1,5 +1,5 @@
 // 画面用の純粋関数。API の生データを表示しやすい形に整える。テストはここだけ。
-import type { Step, ShadowReport } from "./api";
+import type { QueueItem, ShadowReport, ShadowSummary, Step } from "./api";
 
 export const STEP_ORDER = ["route", "retrieve", "draft", "review", "verify", "enqueue"] as const;
 
@@ -94,7 +94,86 @@ export function summarize(t: ShadowReport["totals"]): string {
   return `${t.count} 件: 本番 pass ${t.main_pass} / 警告 ${t.main_warnings}、影 pass ${t.shadow_pass} / 警告 ${t.shadow_warnings}` + (t.shadow_failed ? `、影の失敗 ${t.shadow_failed}` : "");
 }
 
-export function fmtMs(ms?: number): string {
+export function fmtMs(ms?: number | null): string {
   if (ms == null) return "";
   return ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`;
+}
+
+// ---- スジ（段の線）。design.md D2-1, 2, 4, 8, 9 -------------------------------------------------
+// 駅は 4 つ。LLM か人が関わり、失敗や警告が出うる点だけ。FAQ 表引きは担当の駅の注記。
+export const STATIONS = ["分類", "担当", "検査", "キュー"] as const;
+export type Urgency3 = "high" | "normal" | "low";
+
+export interface Track {
+  /** 線が届く最後の駅の添字（0〜3） */
+  to: number;
+  /** 失敗の記号を付ける駅。null なら無し */
+  failedAt: number | null;
+  /** 線がそこで止まり、終端記号が付く（返信案なしでキューに載る件、影の担当の失敗） */
+  terminal: boolean;
+  /** 駅ごとの所要時間（ms）。追跡画面だけ */
+  elapsed: (number | null)[] | null;
+}
+
+export interface Suji {
+  urgency: Urgency3;
+  /** 本番。実線。分類から */
+  main: Track;
+  /** 影。破線。担当（添字 1）から。影が無ければ null */
+  shadow: Track | null;
+  /** 担当の駅の注記（渡した記事 ID）。無ければ空 */
+  articles: string[];
+}
+
+export function urgency3(u: string): Urgency3 {
+  return u === "high" || u === "normal" || u === "low" ? u : "low";
+}
+
+const noElapsed = (): (number | null)[] | null => null;
+
+/** キュー項目だけから導く（一覧用）。失敗は warnings の文言で読む。 */
+export function sujiFromItem(item: QueueItem): Suji {
+  const w = item.warnings;
+  let main: Track;
+  if (!item.specialist) {
+    // 分類の失敗、またはカテゴリ other（人が直接対応）。線は分類で止まる
+    main = { to: 0, failedAt: w.some((x) => x.startsWith("分類失敗")) ? 0 : null, terminal: true, elapsed: noElapsed() };
+  } else if (!item.draft) {
+    main = { to: 1, failedAt: 1, terminal: true, elapsed: noElapsed() };
+  } else {
+    main = { to: 3, failedAt: w.some((x) => x.startsWith("レビュー失敗")) ? 2 : null, terminal: false, elapsed: noElapsed() };
+  }
+  return { urgency: urgency3(item.urgency), main, shadow: shadowTrack(item.shadow, null), articles: item.candidate_ids ?? [] };
+}
+
+function shadowTrack(sh: ShadowSummary | null | undefined, elapsed: (number | null)[] | null): Track | null {
+  if (!sh) return null;
+  if (sh.failed) return { to: 1, failedAt: 1, terminal: true, elapsed };
+  const reviewFailed = typeof sh.verdict === "string" && sh.verdict.startsWith("失敗");
+  return { to: 3, failedAt: reviewFailed ? 2 : null, terminal: false, elapsed };
+}
+
+/** steps.jsonl から導く（追跡画面用）。失敗は段の status で読み、所要時間を添える。 */
+export function sujiFromSteps(steps: Step[], item: QueueItem): Suji {
+  const by = (name: string) => steps.find((s) => s.step === name);
+  const ms = (s?: Step) => (s?.elapsed_ms == null ? null : s.elapsed_ms);
+  // 検査はレビュー（LLM）と検証（コード）が並列。駅の数字は遅い方
+  const checkMs = (a?: Step, b?: Step) => {
+    const xs = [ms(a), ms(b)].filter((x): x is number => x != null);
+    return xs.length ? Math.max(...xs) : null;
+  };
+  const route = by("route"), draft = by("draft"), review = by("review"), verify = by("verify");
+  const base = sujiFromItem(item);
+  const main: Track = { ...base.main, elapsed: [ms(route), ms(draft), checkMs(review, verify), null] };
+  if (route?.status === "failed") Object.assign(main, { to: 0, failedAt: 0, terminal: true });
+  else if (draft?.status === "failed") Object.assign(main, { to: 1, failedAt: 1, terminal: true });
+  else if (draft && review?.status === "failed") main.failedAt = 2;
+  const sd = by("shadow_draft");
+  let shadow: Track | null = null;
+  if (sd) {
+    const sr = by("shadow_review"), sv = by("shadow_verify");
+    const elapsed = [null, ms(sd), checkMs(sr, sv), null];
+    shadow = sd.status === "failed" ? { to: 1, failedAt: 1, terminal: true, elapsed } : { to: 3, failedAt: sr?.status === "failed" ? 2 : null, terminal: false, elapsed };
+  }
+  return { ...base, main, shadow };
 }

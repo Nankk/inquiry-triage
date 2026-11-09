@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { orderSteps, pairSides, reportLine, summarize } from "./lib";
-import type { Step } from "./api";
+import { orderSteps, pairSides, reportLine, sujiFromItem, sujiFromSteps, summarize } from "./lib";
+import type { QueueItem, Step } from "./api";
 
 const step = (p: Partial<Step>): Step => ({ ts: "2026-11-09T00:00:00Z", step: "x", agent: "a", inquiry_id: "INQ-001", input: {}, output: null, status: "ok", ...p });
 
@@ -54,5 +54,53 @@ describe("reportLine / summarize", () => {
   it("合計の文", () => {
     expect(summarize({ count: 2, main_pass: 0, main_warnings: 6, shadow_pass: 1, shadow_warnings: 0, shadow_failed: 1 })).toBe("2 件: 本番 pass 0 / 警告 6、影 pass 1 / 警告 0、影の失敗 1");
     expect(summarize({ count: 0, main_pass: 0, main_warnings: 0, shadow_pass: 0, shadow_warnings: 0, shadow_failed: 0 })).toBe("影は走っていません");
+  });
+});
+
+describe("sujiFromItem / sujiFromSteps（design.md D2-8, 9）", () => {
+  const item = (p: Partial<QueueItem>): QueueItem => ({
+    inquiry_id: "INQ-001", customer: "c", subject: "s", body: "b", urgency: "high", category: "billing",
+    specialist: "billing_specialist", candidate_ids: ["KB-B01"], draft: { body: "x", cited: [], ask_customer: [], confidence: "high" },
+    warnings: [], status: "pending", shadow: null, ...p,
+  });
+  it("INQ-001: 本番は 4 駅、影は担当から破線で 4 駅まで", () => {
+    const s = sujiFromItem(item({ shadow: { agent: "billing_specialist_v2", verdict: "pass", warnings: 0, failed: null } }));
+    expect(s.urgency).toBe("high");
+    expect(s.main).toMatchObject({ to: 3, failedAt: null, terminal: false });
+    expect(s.shadow).toMatchObject({ to: 3, failedAt: null, terminal: false });
+    expect(s.articles).toEqual(["KB-B01"]);
+  });
+  it("INQ-004: レビュー失敗は本番の線を止めず検査に記号、影の担当の失敗は破線が担当で止まる", () => {
+    const s = sujiFromItem(item({
+      inquiry_id: "INQ-004", urgency: "normal",
+      warnings: ["引用記事が候補に無い: KB-B09", "レビュー失敗: LLMError: fixture missing: reviewer/INQ-004.json"],
+      shadow: { agent: "billing_specialist_v2", verdict: null, warnings: null, failed: "LLMError: fixture missing" },
+    }));
+    expect(s.urgency).toBe("normal");
+    expect(s.main).toMatchObject({ to: 3, failedAt: 2, terminal: false });
+    expect(s.shadow).toMatchObject({ to: 1, failedAt: 1, terminal: true });
+  });
+  it("INQ-005: other は分類で止まって終端記号、失敗の記号は無し", () => {
+    const s = sujiFromItem(item({ inquiry_id: "INQ-005", urgency: "low", category: "other", specialist: null, draft: null, candidate_ids: [], warnings: ["カテゴリ other の担当なし", "人が直接対応"] }));
+    expect(s.main).toMatchObject({ to: 0, failedAt: null, terminal: true });
+    expect(s.shadow).toBeNull();
+  });
+  it("分類の失敗は分類に記号、担当の失敗は担当で止まる。未知の緊急度は低", () => {
+    expect(sujiFromItem(item({ urgency: "??", specialist: null, draft: null, warnings: ["分類失敗: x", "人が直接対応"] }))).toMatchObject({ urgency: "low", main: { to: 0, failedAt: 0, terminal: true } });
+    expect(sujiFromItem(item({ draft: null, warnings: ["返信案の生成失敗: x", "人が直接対応"] })).main).toMatchObject({ to: 1, failedAt: 1, terminal: true });
+  });
+  it("steps から: 失敗は段の status で読み、検査の数字はレビューと検証の遅い方、キューは無し", () => {
+    const steps: Step[] = [
+      step({ step: "route", elapsed_ms: 0.5 }),
+      step({ step: "retrieve", elapsed_ms: 0 }),
+      step({ step: "shadow_draft", agent: "billing_specialist_v2", status: "failed", reason: "fixture missing", elapsed_ms: 0.1 }),
+      step({ step: "draft", elapsed_ms: 1300 }),
+      step({ step: "review", status: "failed", reason: "fixture missing", elapsed_ms: 0.1 }),
+      step({ step: "verify", output: [], elapsed_ms: 0.7 }),
+      step({ step: "enqueue" }),
+    ];
+    const s = sujiFromSteps(steps, item({ inquiry_id: "INQ-004", urgency: "normal", shadow: { agent: "billing_specialist_v2", verdict: null, warnings: null, failed: "fixture missing" } }));
+    expect(s.main).toEqual({ to: 3, failedAt: 2, terminal: false, elapsed: [0.5, 1300, 0.7, null] });
+    expect(s.shadow).toEqual({ to: 1, failedAt: 1, terminal: true, elapsed: [null, 0.1, null, null] });
   });
 });

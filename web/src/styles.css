@@ -170,3 +170,18 @@ td.num, th.num { text-align: right; }
   .runsel { margin-left: 0; height: 44px; width: 100%; }
   .pagehead, .content, .foot { padding-left: 16px; padding-right: 16px; }
 }
+
+/* ---- スジ ------------------------------------------------------------ */
+.suji { display: block; overflow: visible; }
+.suji.s { margin-top: 8px; }
+.suji text { font-family: var(--sans); fill: var(--ink-2); font-size: 11.5px; }
+.suji .suji-names text { fill: var(--ink); font-weight: 700; font-size: 12px; }
+.suji .suji-note { fill: var(--ink-3); font-weight: 400; font-size: 11px; }
+.suji .suji-ms text { fill: var(--ink-2); font-size: 11px; }
+.suji .suji-shadow-ms { fill: var(--ink-3); }
+.suji .suji-legend { fill: var(--ink-3); font-size: 10.5px; }
+.suji .suji-bed { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 1 4; }
+.suji .suji-station { fill: var(--ink); stroke: var(--card); stroke-width: 1.5; }
+.suji .suji-end { stroke-width: 2; stroke-linecap: round; }
+.suji .suji-draw { stroke-dasharray: 1; stroke-dashoffset: 0; animation: suji-draw 180ms var(--ease); }
+@keyframes suji-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
